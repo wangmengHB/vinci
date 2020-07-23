@@ -1,3 +1,5 @@
+export * from './canvas/vinci-canvas';
+export * from './canvas/static-paint';
 
+export * from './shape/Source';
 
-console.log('this is an empty project');

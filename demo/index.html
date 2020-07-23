@@ -2,14 +2,41 @@
 <html>
 <head>
 <style>
-.root{
-  display: flex;
+#root{
+  width: 100%;
+  height: 750px;
+  border: 1px solid red;
 }
 
-img,
-canvas{
-  max-width: 300px;
-  margin: 10px;
+.container1{
+  width: 400px;
+  height: 400px;
+  overflow: scroll;
+  border: solid 1px black;
+  padding: 10px;
+}
+
+.container2{
+  width: 800px;
+  height: 800px;
+  overflow: scroll;
+  border: solid 1px green;
+  padding: 10px;
+}
+
+.container3{
+  width: 1000px;
+  height: 1000px;
+  overflow: scroll;
+  border: solid 1px blue;
+  padding: 10px;
+}
+
+.target{
+  width: 1200px;
+  height: 1200px;
+  background: red;
+  border: solid 1px black;
 }
 
 
@@ -17,9 +44,6 @@ canvas{
 </style>
 </head>
 <body>
-<div class="root">
-  <div id="source"></div>
-  <div id="target"></div>
-</div>
+<div id="root"></div>
 </body>
 </html>

@@ -60,7 +60,7 @@
     "webpack-dev-server": "^3.1.5"
   },
   "dependencies": {
-    "util-kit": "^0.0.0-rc.6",
-    "web-util-kit": "0.0.3"
+    "util-kit": "latest",
+    "web-util-kit": "latest"
   }
 }
