@@ -1,4 +1,12 @@
 
+import { decorators } from 'util-kit';
+import { ShapeBase } from '../shape/shape-base';
+
+
+const { createDecorator } = decorators;
+
+const identify = (_: any) => _;
+
 
 
 export function addListener(element: HTMLElement | Document | Window, eventName: string, handler: Function, options?: any) {
@@ -26,3 +34,66 @@ export function removeListener(element: HTMLElement | Document | Window, eventNa
 //  }
 //  return true;
 // }
+
+
+
+
+export function saveContext() {
+  return createDecorator((fn, key) => {
+    return function(this: ShapeBase, ctx: CanvasRenderingContext2D, vpt: any) {
+      if (!(ctx instanceof CanvasRenderingContext2D)) {
+        throw new Error('failed to get CanvasRenderingContext2D');
+      }
+      ctx.save();
+      ctx.lineWidth = this.lineWidth;
+      ctx.fillStyle = this.fillStyle;
+      ctx.strokeStyle = this.strokeStyle;
+
+
+      this.calcDimensions();
+      this.calcControls();
+      ctx.setTransform(...this.transform.getMatrix2X3Array());
+      const res: any = fn.apply(this, arguments);
+      ctx.restore();
+      return res;
+    };
+  });
+}
+
+
+
+export function setPropertyMapping(
+  obj: any, 
+  prop1: string, 
+  prop2: string, 
+  valueFn: Function = identify,          // obj[prop1] = valueFn(obj[prop2])
+  inverseFn: Function = identify,        // obj[prop2] = inverseFn(obj[prop1])
+) {
+
+  let _value1 = obj[prop1];
+  let _value2 = inverseFn(obj[prop1]);
+
+  const setter1 = (next: any) => {
+    _value1 =  next;
+    _value2 = inverseFn(next);
+  }
+
+  const setter2 = (next: any) => {
+    _value2 =  next;
+    _value1 = valueFn(next);
+  }
+
+  Object.defineProperty(obj, prop1, {
+    get: () => _value1,
+    set: setter1,    
+
+  });
+
+  Object.defineProperty(obj, prop2, {
+    get: () => _value2,
+    set: setter2,
+  });
+
+}
+
+

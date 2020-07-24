@@ -2,6 +2,7 @@ import {
   setElementStyle, getIdentityMatrix2X3, Matrix2X3Array, getPointFromEvent,
 } from 'web-util-kit';
 import { addListener, removeListener } from '../util';
+import { ShapeBase } from '../shape/shape-base';
 
 
 
@@ -20,13 +21,14 @@ export class VinciCanvas {
 
   private shapes: any[] = [];
 
+  activeShape: ShapeBase | null = null;
+
 
   constructor() {
 
     this._lowerCtx = this._lowerCanvas.getContext('2d') as CanvasRenderingContext2D;
 
     this._initDOM();
-    this._initEvent();
     this.setCanvasDimensions(750, 750);
     this._initEventListeners();
 
@@ -63,24 +65,21 @@ export class VinciCanvas {
     });
   }
 
-  draw() {
+  render() {
     this._lowerCtx.clearRect(0, 0, this.width, this.height);
-
     this.shapes.forEach((item: any) => {
-
       item.render(this._lowerCtx, this.viewportTransform);
       item.renderControls(this._lowerCtx, this.viewportTransform);
-
-    })
-
-
-
-
+    });
   }
 
   addShape(obj: any) {
-
     this.shapes.push(obj);
+  }
+
+  discardActiveObject() {
+    this.shapes.forEach((shape: any) => shape.active = false);
+    this.activeShape = null;
   }
 
   
@@ -88,8 +87,6 @@ export class VinciCanvas {
 
 
   private _initDOM() {
-    
-    
     setElementStyle(this._wrapperEl, {
       position: 'relative',
       touchAction: 'none',
@@ -108,31 +105,22 @@ export class VinciCanvas {
       bottom: 0,
     });
 
+    setElementStyle(this._upperCanvas, {
+      position: 'absolute',
+      touchAction: 'none',
+      userSelect: 'none',
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+    });
+
     this._wrapperEl.appendChild(this._lowerCanvas);
     this._wrapperEl.appendChild(this._upperCanvas);
 
   }
 
-  private _initEvent() {
-
-    this._wrapperEl.addEventListener('mousedown', (e: MouseEvent) => {
-
-      
-
-      const point = getPointFromEvent(e, this._lowerCanvas);
-
-      
-
-      this.shapes.forEach((item: any) => {
-
-        item.dispatchEvent('mousedown', point, this._lowerCtx);
   
-      })
-
-
-    })
-
-  }
 
 
   private _initEventListeners() {
@@ -141,6 +129,7 @@ export class VinciCanvas {
     // this is a workaround to having double listeners.
     this.removeListeners();
     this.addOrRemove(addListener);
+    console.log('register');
   }
 
   
@@ -150,6 +139,8 @@ export class VinciCanvas {
     eventHelper(window, 'resize', this._onResize);
 
     // 注意：这里没有 mouseup 事件
+    console.log(canvasElement);
+    
     eventHelper(canvasElement, 'mousedown', this._onMouseDown);
     eventHelper(canvasElement, 'mousemove', this._onMouseMove, { passive: false } as any);
 
@@ -189,6 +180,7 @@ export class VinciCanvas {
   
 
   private _onMouseDown = (e: Event) => {
+    console.log('mouse down');
     this.__onMouseDown(e);
     // this._resetTransformEventData();
     const canvasElement = this._upperCanvas;
@@ -215,7 +207,8 @@ export class VinciCanvas {
 
   private _onMouseMove = (e: Event) => {
     // !this.allowTouchScrolling && e.preventDefault && e.preventDefault();
-    // this.__onMouseMove(e);
+    this.__onMouseMove(e);
+    
   }
 
   private _onMouseWheel = (e: Event) => {
@@ -234,11 +227,172 @@ export class VinciCanvas {
   // real event handler
 
 
+
+  
+    
+  
+
   private __onMouseDown = (e: Event) => {
+    
+    this.discardActiveObject();
+    const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
+    const list = this.shapes.slice().reverse();
+
+    let targetShape;
+    for (let i = 0; i < list.length; i++) {
+      const shape = list[i];
+      
+      if (shape.isPointInPath(this._lowerCtx, pointer)) {
+
+        targetShape = shape;
+        shape.active = true;
+        break;
+      }
+    }
+
+    if (targetShape) {
+      targetShape.active = true;
+      this.activeShape = targetShape as ShapeBase;
+      this.activeShape.moving = true;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+    
+
+    // var pointer = this._pointer;
+    // // save pointer for check in __onMouseUp event
+    // this._previousPointer = pointer;
+    // var shouldRender = this._shouldRender(target),
+    //     shouldGroup = this._shouldGroup(e, target);
+    // if (this._shouldClearSelection(e, target)) {
+    //   this.discardActiveObject(e);
+    // }
+    // else if (shouldGroup) {
+    //   this._handleGrouping(e, target);
+    //   target = this._activeObject;
+    // }
+
+    // if (this.selection && (!target ||
+    //   (!target.selectable && !target.isEditing && target !== this._activeObject))) {
+    //   this._groupSelector = {
+    //     ex: pointer.x,
+    //     ey: pointer.y,
+    //     top: 0,
+    //     left: 0
+    //   };
+    // }
+
+    // if (target) {
+    //   var alreadySelected = target === this._activeObject;
+    //   if (target.selectable) {
+    //     this.setActiveObject(target, e);
+    //   }
+    //   var corner = target._findTargetCorner(
+    //     this.getPointer(e, true),
+    //     fabric.util.isTouchEvent(e)
+    //   );
+    //   target.__corner = corner;
+    //   if (target === this._activeObject && (corner || !shouldGroup)) {
+    //     var control = target.controls[corner],
+    //         mouseDownHandler = control && control.getMouseDownHandler(e, target, control);
+    //     if (mouseDownHandler) {
+    //       mouseDownHandler(e, target, control);
+    //     }
+    //     this._setupCurrentTransform(e, target, alreadySelected);
+    //   }
+    // }
+    // this._handleEvent(e, 'down');
+    
 
   }
 
+
+  private __onMouseMove = (e: Event) => {
+    if (!this.activeShape) {
+      return;
+    }
+    const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
+    if (this.activeShape.moving) {
+      this.activeShape.left = pointer.x - this.activeShape.width/2;
+      this.activeShape.top = pointer.y - this.activeShape.height/2;
+    }
+    
+
+
+  }
+
+
+  // /**
+  //    * @private
+  //    * @param {Event} e Event fired on mousemove
+  //    */
+  //   _transformObject: function(e) {
+  //     var pointer = this.getPointer(e),
+  //         transform = this._currentTransform;
+
+  //     transform.reset = false;
+  //     transform.target.isMoving = true;
+  //     transform.shiftKey = e.shiftKey;
+  //     transform.altKey = e[this.centeredKey];
+
+  //     this._performTransformAction(e, transform, pointer);
+  //     transform.actionPerformed && this.requestRenderAll();
+  //   },
+
+  //   /**
+  //    * @private
+  //    */
+  //   _performTransformAction: function(e, transform, pointer) {
+  //     var x = pointer.x,
+  //         y = pointer.y,
+  //         action = transform.action,
+  //         actionPerformed = false,
+  //         actionHandler = transform.actionHandler,
+  //         // this object could be created from the function in the control handlers
+  //         options = {
+  //           target: transform.target,
+  //           e: e,
+  //           transform: transform,
+  //           pointer: pointer
+  //         };
+
+  //     if (action === 'drag') {
+  //       actionPerformed = this._translateObject(x, y);
+  //       if (actionPerformed) {
+  //         this._fire('moving', options);
+  //         this.setCursor(options.target.moveCursor || this.moveCursor);
+  //       }
+  //     }
+  //     else if (actionHandler) {
+  //       (actionPerformed = actionHandler(e, transform, x, y)) && this._fire(action, options);
+  //     }
+  //     transform.actionPerformed = transform.actionPerformed || actionPerformed;
+  //   },
+
+
+
+
   private __onMouseUp = (e: Event) => {
+    if (!this.activeShape) {
+      return;
+    }
+
+    this.activeShape.moving = false;
+
+
 
   }
 

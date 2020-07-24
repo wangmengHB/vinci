@@ -1,5 +1,5 @@
 
-import { VinciCanvas, Source } from '../src';
+import { VinciCanvas, Source, Rect } from '../src';
 
 
 const dat = require('dat.gui');
@@ -22,20 +22,32 @@ const TEST_IMAGE = new Image();
 TEST_IMAGE.src = TEST_IMAGE_URL;
 
 
+const rect = new Rect();
+rect.width = 400;
+rect.height = 200;
+
+
 const source = new Source();
 source.loadFromSource(TEST_IMAGE).then(() => {
 
   vinci.addShape(source);
-  vinci.draw();
+  vinci.addShape(rect);
+
+  vinci.render();
+
+  source.set({ left: 100, top: 100});
+  // source.addRotate();
+  // source.addRotate();
 });
 
+(window as any).rect = rect;
 (window as any).source = source;
 (window as any).vinci = vinci;
 
 
 
 setInterval(() => {
-  vinci.draw();
+  vinci.render();
 }, 100)
 
 
