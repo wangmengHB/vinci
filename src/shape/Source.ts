@@ -53,13 +53,13 @@ export class Source extends Rect{
 
     ctx.drawImage(
       this.source, 
-      this.left - this.transform.translateX, 
-      this.top - this.transform.translateY,
+      this.left - this.translateX, 
+      this.top - this.translateY,
     );
 
     this.path2D.rect(
-      this.left - this.transform.translateX, 
-      this.top - this.transform.translateY,
+      this.left - this.translateX, 
+      this.top - this.translateY,
       this.width,
       this.height,
     );

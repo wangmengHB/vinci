@@ -1,7 +1,8 @@
 import { 
-  setElementStyle, getIdentityMatrix2X3, Matrix2X3Array, getPointFromEvent,
+  setElementStyle, getIdentityMatrix2X3, Matrix2X3Array, getPointFromEvent, Point2D,
+  transformPoint2D,
 } from 'web-util-kit';
-import { addListener, removeListener } from '../util';
+import { addListener, removeListener, radianToDegree, degreeToRadian } from '../util';
 import { ShapeBase } from '../shape/shape-base';
 
 
@@ -22,6 +23,10 @@ export class VinciCanvas {
   private shapes: any[] = [];
 
   activeShape: ShapeBase | null = null;
+
+  private _lastPointer: Point2D | null = null; 
+  private _lastDims: any = {};
+  private _lastAngle: number | null = null;
 
 
   constructor() {
@@ -233,9 +238,36 @@ export class VinciCanvas {
   
 
   private __onMouseDown = (e: Event) => {
-    
-    this.discardActiveObject();
     const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
+    this._lastPointer = pointer;
+    if (this.activeShape) {
+      // TODO find target corner, to decide which action
+
+
+      // TODO check if any control point is hit
+      console.log('mouse' ,pointer.x, pointer.y);
+
+      console.log('origin mtr', this.activeShape.control.mtr.x, this.activeShape.control.mtr.y);
+
+      const mtr = transformPoint2D(
+        this.activeShape.control.mtr, 
+        this.activeShape.getTransformMatrix2X3Array()
+      );
+      
+      console.log('mtr', mtr.x, mtr.y);
+
+      if (this._lastPointer.distanceFrom(mtr) < 10 ) {
+        this._lastAngle = this.activeShape.angle;
+        this.activeShape.rotating = true;
+        this.activeShape.moving = false;
+        (window as any).active = this.activeShape;
+
+        return;
+      }
+    }
+
+
+    
     const list = this.shapes.slice().reverse();
 
     let targetShape;
@@ -243,17 +275,24 @@ export class VinciCanvas {
       const shape = list[i];
       
       if (shape.isPointInPath(this._lowerCtx, pointer)) {
-
-        targetShape = shape;
-        shape.active = true;
+        targetShape = shape;  
         break;
       }
     }
 
+    this.discardActiveObject();
     if (targetShape) {
-      targetShape.active = true;
       this.activeShape = targetShape as ShapeBase;
       this.activeShape.moving = true;
+      this.activeShape.active = true;
+      this._lastDims = {
+        left: this.activeShape.left,
+        top: this.activeShape.top,
+        width: this.activeShape.width,
+        height: this.activeShape.height
+      };
+    } else {
+      
     }
 
 
@@ -267,10 +306,7 @@ export class VinciCanvas {
 
 
 
-    
 
-    
-    
 
     // var pointer = this._pointer;
     // // save pointer for check in __onMouseUp event
@@ -325,9 +361,22 @@ export class VinciCanvas {
       return;
     }
     const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
-    if (this.activeShape.moving) {
-      this.activeShape.left = pointer.x - this.activeShape.width/2;
-      this.activeShape.top = pointer.y - this.activeShape.height/2;
+
+    if (this.activeShape.moving && this._lastPointer && this._lastDims) {
+      this.activeShape.left = this._lastDims.left + (pointer.x - this._lastPointer.x);
+      this.activeShape.top = this._lastDims.top + (pointer.y - this._lastPointer.y);
+    } else if (
+      this.activeShape.rotating && this._lastPointer && typeof this._lastAngle === 'number'
+    ) {
+
+      const center = new Point2D(this.activeShape.translateX, this.activeShape.translateY);
+      const vector1 = this._lastPointer.sub(center);
+      const vector2 = pointer.sub(center);
+
+      const angle = radianToDegree(Math.atan2(vector2.y, vector2.x) - Math.atan2(vector1.y, vector1.x));
+      
+      this.activeShape.angle = this._lastAngle + angle;
+
     }
     
 
@@ -390,7 +439,12 @@ export class VinciCanvas {
       return;
     }
 
+
+    this.activeShape.rotating = false;
     this.activeShape.moving = false;
+    this._lastPointer = null;
+    this._lastDims = null;
+    this._lastAngle = null;
 
 
 

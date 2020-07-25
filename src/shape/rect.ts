@@ -31,8 +31,8 @@ export class Rect extends ShapeBase {
   @saveContext()
   render(ctx: CanvasRenderingContext2D, vpt: any)  { 
     this.path2D.rect(
-      this.left - this.transform.translateX, 
-      this.top - this.transform.translateY,
+      this.left - this.translateX, 
+      this.top - this.translateY,
       this.width,
       this.height,
     );

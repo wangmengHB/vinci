@@ -1,5 +1,8 @@
-import { ContextFill, ContextStroke, Transform } from '../context'; 
-import { saveContext } from '../util';
+import { ContextFill, ContextStroke } from '../context'; 
+import { 
+  saveContext, setPropertyMapping, radianToDegree, degreeToRadian, 
+  bindComputedProperty,
+} from '../util';
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
   getIdentityTransformOption, TRANSFORM_OPTION, Point2D,
@@ -37,12 +40,67 @@ export class ShapeBase {
   stroke: ContextStroke = new ContextStroke();
   path2D: Path2D = new Path2D();
 
-  transform: Transform = new Transform();
-  
+
+  // transform
+  // 角度单位
+  public angle: number = 0;
+  public skewX: number = 0;
+  public skewY: number = 0;
+  // 弧度单位
+  private _angle: number = 0;
+  private _skewX: number = 0;
+  private _skewY: number = 0;
+
+  private _scaleX: number = 1;
+  private _scaleY: number = 1;
+
+  // translateX: number = 0;
+  // translateY: number = 0;
+  flipX: boolean = false;
+  flipY: boolean = false;
+
+  set scaleX(val: number) {
+    if (val < 0) {
+      return;
+    }
+    this._scaleX = val;
+  }
+
+  get scaleX() {
+    return this._scaleX;
+  }
+
+  set scaleY(val: number) {
+    if (val < 0) {
+      return;
+    }
+    this._scaleY = val;
+  }
+
+  get scaleY() {
+    return this._scaleY;
+  }
+
+
+
+
+  get translateX() {
+    return this.left + this.width * this.centerXRatio;
+  }
+
+  get translateY() {
+    return this.top + this.height * this.centerYRatio;
+  }
+
+
+
+
 
 
   active: boolean = false;
   moving: boolean = false;
+  rotating: boolean = false;
+  scaling: boolean = false;
 
 
 
@@ -61,7 +119,51 @@ export class ShapeBase {
 
 
   constructor() {
-    console.log(this);
+
+
+    setPropertyMapping(this, 'angle', '_angle', radianToDegree, degreeToRadian);
+    setPropertyMapping(this, 'skewX', '_skewX', radianToDegree, degreeToRadian);
+    setPropertyMapping(this, 'skewY', '_skewY', radianToDegree, degreeToRadian);
+
+
+    // debugger;
+    // bindComputedProperty(
+    //   this, 
+    //   'translateX', 
+    //   ['left', 'width', 'centerXRatio'], 
+    //   (left: number, width: number, centerXRatio: number) => left + width * centerXRatio
+    // )
+    
+  }
+
+
+  getOptions(): TRANSFORM_OPTION {
+    return {
+      angle: this.angle,
+      skewX: this.skewX,
+      skewY: this.skewY,
+      scaleX: this.scaleX,
+      scaleY: this.scaleY,
+      flipX: this.flipX,
+      flipY: this.flipY,
+      translateX: this.translateX,
+      translateY: this.translateY,
+    };
+  }
+
+
+  getTransformMatrix2X3Array(): Matrix2X3Array {
+    return composeMatrix2X3({
+      angle: this._angle,
+      skewX: this._skewX,
+      skewY: this._skewY,
+      scaleX: this.scaleX,
+      scaleY: this.scaleY,
+      flipX: this.flipX,
+      flipY: this.flipY,
+      translateX: this.translateX,
+      translateY: this.translateY,
+    });
   }
   
 
@@ -71,17 +173,42 @@ export class ShapeBase {
 
 
   calcControls() {
-    this.transform.translateX = this.left + this.width * this.centerXRatio;
-    this.transform.translateY = this.top + this.height * this.centerYRatio;
-    this.control.tl.setXY(this.left, this.top);
-    this.control.mt.setXY(this.left + this.width / 2, this.top);
-    this.control.tr.setXY(this.left + this.width, this.top);
-    this.control.mr.setXY(this.left + this.width, this.top + this.height / 2);
-    this.control.br.setXY(this.left + this.width, this.top + this.height);
-    this.control.mb.setXY(this.left + this.width / 2, this.top + this.height);
-    this.control.bl.setXY(this.left, this.top + this.height);
-    this.control.ml.setXY(this.left, this.top + this.height / 2);
-    this.control.mtr.setXY(this.left + this.width / 2, this.top - this.height * ROTATE_CONTROL_LENGTH_RATIO);
+    this.control.tl.setXY(
+      this.left - this.translateX, 
+      this.top - this.translateY,
+    );
+    this.control.mt.setXY(
+      this.left + this.width / 2 - this.translateX, 
+      this.top - this.translateY,
+    );
+    this.control.tr.setXY(
+      this.left + this.width - this.translateX, 
+      this.top - this.translateY
+    );
+    this.control.mr.setXY(
+      this.left + this.width - this.translateX, 
+      this.top + this.height / 2 - this.translateY
+    );
+    this.control.br.setXY(
+      this.left + this.width - this.translateX, 
+      this.top + this.height - this.translateY
+    );
+    this.control.mb.setXY(
+      this.left + this.width / 2 - this.translateX, 
+      this.top + this.height - this.translateY
+    );
+    this.control.bl.setXY(
+      this.left - this.translateX, 
+      this.top + this.height - this.translateY
+    );
+    this.control.ml.setXY(
+      this.left - this.translateX, 
+      this.top + this.height / 2 - this.translateY
+    );
+    this.control.mtr.setXY(
+      this.left + this.width / 2 - this.translateX, 
+      this.top - this.height * ROTATE_CONTROL_LENGTH_RATIO - this.translateY
+    );
   }
 
 
@@ -114,7 +241,7 @@ export class ShapeBase {
 
 
   @saveContext()
-  render(ctx: CanvasRenderingContext2D, vpt: Transform) {}
+  render(ctx: CanvasRenderingContext2D, vpt: any) {}
 
 
 
@@ -128,19 +255,19 @@ export class ShapeBase {
     ctx.strokeStyle = 'blue';
     ctx.setLineDash([4,4]);
     ctx.strokeRect(
-      this.left - this.transform.translateX, 
-      this.top - this.transform.translateY,
+      this.left - this.translateX, 
+      this.top - this.translateY,
       this.width,
       this.height
     );
     ctx.beginPath();
     ctx.moveTo(
-      this.control.mt.x - this.transform.translateX, 
-      this.control.mt.y - this.transform.translateY
+      this.control.mt.x,
+      this.control.mt.y,
     );
     ctx.lineTo(
-      this.control.mtr.x - this.transform.translateX,
-      this.control.mtr.y - this.transform.translateY,
+      this.control.mtr.x,
+      this.control.mtr.y,
     );
     ctx.stroke();
     
@@ -148,15 +275,12 @@ export class ShapeBase {
     Object.keys(this.control).forEach((name: string) => {
       ctx.beginPath();
       ctx.arc(
-        this.control[name].x - this.transform.translateX, 
-        this.control[name].y - this.transform.translateY, 
-        10, 0, Math.PI * 2
+        this.control[name].x,
+        this.control[name].y,
+        6, 0, Math.PI * 2
       );
       ctx.fill();
     })
-
-    
-    
 
   }
 

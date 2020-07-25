@@ -7,6 +7,8 @@ const { createDecorator } = decorators;
 
 const identify = (_: any) => _;
 
+const PI_BY_180 = Math.PI / 180;
+
 
 
 export function addListener(element: HTMLElement | Document | Window, eventName: string, handler: Function, options?: any) {
@@ -17,6 +19,9 @@ export function addListener(element: HTMLElement | Document | Window, eventName:
 export function removeListener(element: HTMLElement | Document | Window, eventName: string, handler: Function, options?: any) {
   element && element.removeEventListener(eventName as any, handler as any, options);
 };
+
+export const radianToDegree = (radian: number) => radian / PI_BY_180;
+export const degreeToRadian = (degree: number) => degree * PI_BY_180;
 
 
 // export function isMainEvent(evt: Event) {
@@ -38,6 +43,7 @@ export function removeListener(element: HTMLElement | Document | Window, eventNa
 
 
 
+
 export function saveContext() {
   return createDecorator((fn, key) => {
     return function(this: ShapeBase, ctx: CanvasRenderingContext2D, vpt: any) {
@@ -52,7 +58,7 @@ export function saveContext() {
 
       this.calcDimensions();
       this.calcControls();
-      ctx.setTransform(...this.transform.getMatrix2X3Array());
+      ctx.setTransform(...this.getTransformMatrix2X3Array());
       const res: any = fn.apply(this, arguments);
       ctx.restore();
       return res;
@@ -86,7 +92,6 @@ export function setPropertyMapping(
   Object.defineProperty(obj, prop1, {
     get: () => _value1,
     set: setter1,    
-
   });
 
   Object.defineProperty(obj, prop2, {
@@ -94,6 +99,39 @@ export function setPropertyMapping(
     set: setter2,
   });
 
+}
+
+
+export function bindComputedProperty(
+  obj: any, 
+  dest: string, 
+  sources: string[], 
+  computFn: Function,
+) {
+
+  
+  
+
+  var handler = {
+    set: function(obj: any, prop: string, value: any) {
+      obj[prop] = value;
+
+      if (sources.indexOf(prop) > -1) {
+        obj[dest] = computFn(...sources.map((name: string) => obj[name]))
+      }
+        
+      return true;
+    }
+  };
+  var p = new Proxy(obj, handler);
+
+  (window as any).p = p;
+
+
+    // p.age = 100;
+    // console.log(p.age);  //100
+    // p.age = 'Jack';      //TypeError: The age is not an integer
+  
 }
 
 

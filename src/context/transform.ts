@@ -4,15 +4,7 @@ import {
   transformPoint2D,
   getPointFromEvent,
 } from 'web-util-kit';
-import { saveContext, setPropertyMapping } from '../util';
-
-
-const PI_BY_180 = Math.PI / 180;
-
-
-const radianToDegree = (radian: number) => radian / PI_BY_180;
-const degreeToRadian = (degree: number) => degree * PI_BY_180;
-
+import { saveContext, setPropertyMapping, radianToDegree, degreeToRadian} from '../util';
 
 
 
