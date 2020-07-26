@@ -28,6 +28,8 @@ export class VinciCanvas {
   private _lastDims: any = {};
   private _lastAngle: number | null = null;
 
+  private action: string | null = null;
+
 
   constructor() {
 
@@ -240,30 +242,45 @@ export class VinciCanvas {
   private __onMouseDown = (e: Event) => {
     const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
     this._lastPointer = pointer;
+    
     if (this.activeShape) {
       // TODO find target corner, to decide which action
+      let type = this.activeShape.findControlCorner(pointer);
+      console.log('type', type);
 
-
-      // TODO check if any control point is hit
-      console.log('mouse' ,pointer.x, pointer.y);
-
-      console.log('origin mtr', this.activeShape.control.mtr.x, this.activeShape.control.mtr.y);
-
-      const mtr = transformPoint2D(
-        this.activeShape.control.mtr, 
-        this.activeShape.getTransformMatrix2X3Array()
-      );
-      
-      console.log('mtr', mtr.x, mtr.y);
-
-      if (this._lastPointer.distanceFrom(mtr) < 10 ) {
+      if (type) {
+        
         this._lastAngle = this.activeShape.angle;
-        this.activeShape.rotating = true;
-        this.activeShape.moving = false;
-        (window as any).active = this.activeShape;
+        this._lastDims = {
+          left: this.activeShape.left,
+          top: this.activeShape.top,
+          width: this.activeShape.width,
+          height: this.activeShape.height
+        };
+        this.action = type;
 
         return;
       }
+
+
+      // TODO check if any control point is hit
+      
+
+      // const mtr = transformPoint2D(
+      //   this.activeShape.control.mtr, 
+      //   this.activeShape.getTransformMatrix2X3Array()
+      // );
+      
+      
+
+      // if (this._lastPointer.distanceFrom(mtr) < 10 ) {
+      //   this._lastAngle = this.activeShape.angle;
+      //   this.activeShape.rotating = true;
+      //   this.activeShape.moving = false;
+        
+
+      //   return;
+      // }
     }
 
 
@@ -283,7 +300,7 @@ export class VinciCanvas {
     this.discardActiveObject();
     if (targetShape) {
       this.activeShape = targetShape as ShapeBase;
-      this.activeShape.moving = true;
+      this.action = 'move';
       this.activeShape.active = true;
       this._lastDims = {
         left: this.activeShape.left,
@@ -362,21 +379,31 @@ export class VinciCanvas {
     }
     const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
 
-    if (this.activeShape.moving && this._lastPointer && this._lastDims) {
-      this.activeShape.left = this._lastDims.left + (pointer.x - this._lastPointer.x);
-      this.activeShape.top = this._lastDims.top + (pointer.y - this._lastPointer.y);
+    if (this.action === 'move' && this._lastPointer && this._lastDims) {
+      this.activeShape.move(
+        this._lastDims.left + (pointer.x - this._lastPointer.x),
+        this._lastDims.top + (pointer.y - this._lastPointer.y)
+      );
     } else if (
-      this.activeShape.rotating && this._lastPointer && typeof this._lastAngle === 'number'
+      this.action === 'mtr' && this._lastPointer && typeof this._lastAngle === 'number'
     ) {
 
       const center = new Point2D(this.activeShape.translateX, this.activeShape.translateY);
       const vector1 = this._lastPointer.sub(center);
       const vector2 = pointer.sub(center);
-
       const angle = radianToDegree(Math.atan2(vector2.y, vector2.x) - Math.atan2(vector1.y, vector1.x));
-      
-      this.activeShape.angle = this._lastAngle + angle;
+      this.activeShape.rotate(this._lastAngle + angle);
 
+    } else if (
+      (this.action === 'tl' || this.action === 'bl' || this.action == 'br' || this.action === 'tr')
+      && this._lastDims && this._lastPointer
+    ) {
+      this.activeShape.scaleToPoint(
+        pointer, 
+        this.action,
+        this._lastPointer, 
+        this._lastDims
+      );
     }
     
 
@@ -440,11 +467,10 @@ export class VinciCanvas {
     }
 
 
-    this.activeShape.rotating = false;
-    this.activeShape.moving = false;
     this._lastPointer = null;
     this._lastDims = null;
     this._lastAngle = null;
+    this.action = null;
 
 
 

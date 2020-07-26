@@ -1,5 +1,6 @@
 
-import { VinciCanvas, Source, Rect } from '../src';
+import { VinciCanvas, Source, Rect, Polygon } from '../src';
+import { Point2D } from 'web-util-kit';
 
 
 const dat = require('dat.gui');
@@ -26,10 +27,29 @@ const rect = new Rect();
 rect.width = 400;
 rect.height = 200;
 
+const randomPoint = () => {
+  return new Point2D(Math.random() * 300, Math.random() * 300)
+}
+
+const polygon = new Polygon();
+polygon.points = [
+  // randomPoint(),
+  // randomPoint(),
+  // randomPoint(),
+  // randomPoint(),
+  // randomPoint(),
+  // randomPoint(),
+  new Point2D(100, 100),
+  new Point2D(300, 300),
+  new Point2D(10, 300),
+
+
+]
 
 const source = new Source();
 source.loadFromSource(TEST_IMAGE).then(() => {
 
+  vinci.addShape(polygon);
   vinci.addShape(source);
   vinci.addShape(rect);
 
@@ -45,11 +65,15 @@ source.loadFromSource(TEST_IMAGE).then(() => {
 (window as any).vinci = vinci;
 
 
-
-setInterval(() => {
+function render() {
   vinci.render();
-}, 100)
+  setTimeout(() => {
+    requestAnimationFrame(render);
+  }, 10)
+  
+}
 
+render();
 
 
 const state = {

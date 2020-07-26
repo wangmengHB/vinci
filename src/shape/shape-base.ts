@@ -6,7 +6,7 @@ import {
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
   getIdentityTransformOption, TRANSFORM_OPTION, Point2D,
-  transformPoint2D,
+  transformPoint2D, invertMatrix2X3, calcRotateMatrix2X3, rotateVector2D,
   getPointFromEvent,
 } from 'web-util-kit';
 
@@ -30,8 +30,8 @@ export class ShapeBase {
   // drawing style
   lineWidth: number = 2;
   strokeWidth: number = 2;
-  fillStyle: string = 'red';
-  strokeStyle: string = 'green';
+  fillStyle: string = 'blue';
+  strokeStyle: string = 'yellow';
   
 
 
@@ -98,9 +98,6 @@ export class ShapeBase {
 
 
   active: boolean = false;
-  moving: boolean = false;
-  rotating: boolean = false;
-  scaling: boolean = false;
 
 
 
@@ -174,40 +171,40 @@ export class ShapeBase {
 
   calcControls() {
     this.control.tl.setXY(
-      this.left - this.translateX, 
-      this.top - this.translateY,
+      this.left , 
+      this.top ,
     );
     this.control.mt.setXY(
-      this.left + this.width / 2 - this.translateX, 
-      this.top - this.translateY,
+      this.left + this.width / 2 , 
+      this.top ,
     );
     this.control.tr.setXY(
-      this.left + this.width - this.translateX, 
-      this.top - this.translateY
+      this.left + this.width , 
+      this.top 
     );
     this.control.mr.setXY(
-      this.left + this.width - this.translateX, 
-      this.top + this.height / 2 - this.translateY
+      this.left + this.width , 
+      this.top + this.height / 2 
     );
     this.control.br.setXY(
-      this.left + this.width - this.translateX, 
-      this.top + this.height - this.translateY
+      this.left + this.width , 
+      this.top + this.height 
     );
     this.control.mb.setXY(
-      this.left + this.width / 2 - this.translateX, 
-      this.top + this.height - this.translateY
+      this.left + this.width / 2 , 
+      this.top + this.height 
     );
     this.control.bl.setXY(
-      this.left - this.translateX, 
-      this.top + this.height - this.translateY
+      this.left , 
+      this.top + this.height 
     );
     this.control.ml.setXY(
-      this.left - this.translateX, 
-      this.top + this.height / 2 - this.translateY
+      this.left , 
+      this.top + this.height / 2 
     );
     this.control.mtr.setXY(
-      this.left + this.width / 2 - this.translateX, 
-      this.top - this.height * ROTATE_CONTROL_LENGTH_RATIO - this.translateY
+      this.left + this.width / 2 , 
+      this.top - this.height * ROTATE_CONTROL_LENGTH_RATIO 
     );
   }
 
@@ -262,12 +259,12 @@ export class ShapeBase {
     );
     ctx.beginPath();
     ctx.moveTo(
-      this.control.mt.x,
-      this.control.mt.y,
+      this.control.mt.x - this.translateX,
+      this.control.mt.y - this.translateY,
     );
     ctx.lineTo(
-      this.control.mtr.x,
-      this.control.mtr.y,
+      this.control.mtr.x - this.translateX,
+      this.control.mtr.y - this.translateY,
     );
     ctx.stroke();
     
@@ -275,8 +272,8 @@ export class ShapeBase {
     Object.keys(this.control).forEach((name: string) => {
       ctx.beginPath();
       ctx.arc(
-        this.control[name].x,
-        this.control[name].y,
+        this.control[name].x - this.translateX,
+        this.control[name].y - this.translateY,
         6, 0, Math.PI * 2
       );
       ctx.fill();
@@ -291,6 +288,87 @@ export class ShapeBase {
       return true;
     }
     return false;
+  }
+
+
+  rotate(angle: number) {
+    this.angle = angle;
+  }
+
+  move(x: number, y: number) {
+    this.left = x;
+    this.top = y;
+  }
+
+  scaleToPoint(pointer: Point2D, type: string, lastPointer: Point2D, lastDims: any) {
+    
+
+    pointer = rotateVector2D(
+      pointer.sub(new Point2D(this.translateX, this.translateY)), 
+      -this._angle
+    );
+
+    lastPointer = rotateVector2D(
+      lastPointer.sub(new Point2D(this.translateX, this.translateY)), 
+      -this._angle
+    );
+
+    const xDiff = pointer.x - lastPointer.x;
+    const yDiff = pointer.y - lastPointer.y;
+
+    
+    if (type === 'tl') {
+      this.left =  pointer.x + this.translateX;
+      this.top = pointer.y + this.translateY;
+      this.width = lastDims.width - xDiff;
+      this.height = lastDims.height - yDiff;
+    } else if ( type === 'tr') {
+      this.left = pointer.x + this.translateX - this.width;
+      this.top =  pointer.y + this.translateY;
+      this.width = lastDims.width + xDiff;
+      this.height = lastDims.height - yDiff;
+    } else if ( type === 'bl') {
+      this.left = pointer.x + this.translateX;
+      this.top =  pointer.y + this.translateY - this.height;
+      this.width = lastDims.width - xDiff;
+      this.height = lastDims.height + yDiff;
+    } else if ( type === 'br') {
+      this.left = pointer.x + this.translateX - this.width;
+      this.top =  pointer.y + this.translateY - this.height;
+      this.width = lastDims.width + xDiff;
+      this.height = lastDims.height + yDiff;
+    }
+
+    
+
+    
+
+
+    
+
+
+  }
+
+
+  findControlCorner(pointer: Point2D) {
+    const names = Object.keys(this.control);
+    let controlPoint, name;
+
+    for (let i = 0; i < names.length; i++) {
+      controlPoint = this.control[names[i]]; 
+      controlPoint = transformPoint2D(
+        controlPoint.subSelf(new Point2D(this.translateX, this.translateY)), 
+        this.getTransformMatrix2X3Array()
+      );
+      
+      if (pointer.distanceFrom(controlPoint) < 10 ) {
+        name = names[i];
+        break;
+      }
+    }
+
+    return name;
+    
   }
 
 

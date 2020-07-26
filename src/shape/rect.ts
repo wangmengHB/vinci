@@ -19,8 +19,6 @@ export class Rect extends ShapeBase {
 
   constructor() {
     super();
-
-
     setPropertyMapping(this, 'x', 'left');
     setPropertyMapping(this, 'y', 'top');
   }
@@ -30,6 +28,7 @@ export class Rect extends ShapeBase {
 
   @saveContext()
   render(ctx: CanvasRenderingContext2D, vpt: any)  { 
+    this.path2D = new Path2D();
     this.path2D.rect(
       this.left - this.translateX, 
       this.top - this.translateY,
