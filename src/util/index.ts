@@ -1,6 +1,7 @@
 
 import { decorators } from 'util-kit';
 import { ShapeBase } from '../shape/shape-base';
+export * from './const';
 
 
 const { createDecorator } = decorators;

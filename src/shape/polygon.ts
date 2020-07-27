@@ -31,17 +31,7 @@ export class Polygon extends Polyline {
     ctx.stroke(this.path2D);
   }
 
-  move(x: number, y: number) {
-
-    this.points.forEach((point: Point2D) => {
-      point.addSelf(new Point2D(x - this.left, y - this.top))
-    });
-
-    this.left = x;
-    this.top = y;
-
-
-  }
+  
 
 
 

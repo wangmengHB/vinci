@@ -4,7 +4,7 @@ import {
   transformPoint2D,
   getPointFromEvent,
 } from 'web-util-kit';
-import { saveContext } from '../util';
+import { saveContext, MTR_LENGTH} from '../util';
 import { Rect } from './rect';
 
 
@@ -13,13 +13,10 @@ export class Source extends Rect{
 
   type: string = 'source';
 
-
   originalWidth: number = 0;
   originalHeight: number = 0;
 
   source: HTMLImageElement | HTMLCanvasElement;
-
-
 
   constructor() {
     super();
@@ -53,9 +50,17 @@ export class Source extends Rect{
 
     ctx.drawImage(
       this.source, 
+      0,
+      0,
+      this.originalWidth,
+      this.originalHeight,
       this.left - this.translateX, 
       this.top - this.translateY,
+      this.width,
+      this.height,
     );
+
+    this.path2D = new Path2D();
 
     this.path2D.rect(
       this.left - this.translateX, 
@@ -64,6 +69,27 @@ export class Source extends Rect{
       this.height,
     );
   }
+
+
+  scaleToControlPoint(pointType: string, pointer: Point2D,  lastPointer: Point2D, lastDims: any) {
+    super.scaleToControlPoint(pointType, pointer,  lastPointer, lastDims);
+
+    // this.scaleX = this.width / this.originalWidth;
+    // this.scaleY = this.height / this.originalHeight;
+
+    // console.log(this.scaleX, this.width, this.originalWidth);
+
+    // this.width = this.originalWidth;
+    
+    // this.height = this.originalHeight;
+
+    // console.log(this.scaleX, this.width, this.originalWidth);
+
+
+
+  }
+
+
 
 }
 

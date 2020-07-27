@@ -395,12 +395,13 @@ export class VinciCanvas {
       this.activeShape.rotate(this._lastAngle + angle);
 
     } else if (
-      (this.action === 'tl' || this.action === 'bl' || this.action == 'br' || this.action === 'tr')
+      (this.action === 'tl' || this.action === 'bl' || this.action == 'br' || this.action === 'tr' ||
+      this.action === 'ml' || this.action === 'mb' || this.action == 'mr' || this.action === 'mt')
       && this._lastDims && this._lastPointer
     ) {
-      this.activeShape.scaleToPoint(
-        pointer, 
+      this.activeShape.scaleToControlPoint(
         this.action,
+        pointer,
         this._lastPointer, 
         this._lastDims
       );

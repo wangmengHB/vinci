@@ -1,7 +1,7 @@
 import { ContextFill, ContextStroke } from '../context'; 
 import { 
   saveContext, setPropertyMapping, radianToDegree, degreeToRadian, 
-  bindComputedProperty,
+  bindComputedProperty, MTR_LENGTH,
 } from '../util';
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
@@ -13,18 +13,62 @@ import {
 
 const ROTATE_CONTROL_LENGTH_RATIO = 0.1;
 
+
 export class ShapeBase {
 
   type: string = 'shape-base';
 
   // dimensions of the shape
+
   left: number = 0;
   top: number = 0;
-  width: number = 0;
-  height: number = 0;
-  centerXRatio: number = 0.5;
-  centerYRatio: number = 0.5;
 
+  
+  private _width: number = 0;
+  private _height: number = 0;
+  private _centerXRatio: number = 0.5;
+  private _centerYRatio: number = 0.5;
+
+  set width(nextVal: number) {
+    if (nextVal < 0) {
+      return;
+    }
+    this._width = nextVal;
+  }
+
+  get width() { return this._width }
+
+  set height(nextVal: number) {
+    if (nextVal < 0) {
+      return;
+    }
+    this._height = nextVal;
+  }
+
+  get height() { return this._height }
+
+  set centerXRatio(nextVal: number) {
+    if (nextVal < 0 || nextVal > 1) {
+      return;
+    }
+    this._centerXRatio = nextVal;
+  }
+
+  get centerXRatio() { return this._centerXRatio }
+
+  set centerYRatio(nextVal: number) {
+    if (nextVal < 0 || nextVal > 1) {
+      return;
+    }
+    this._centerYRatio = nextVal;
+  }
+
+  get centerYRatio() { return this._centerYRatio }
+
+  
+  // height: number = 0;
+  // centerXRatio: number = 0.5;
+  // centerYRatio: number = 0.5;
 
 
   // drawing style
@@ -54,10 +98,8 @@ export class ShapeBase {
   private _scaleX: number = 1;
   private _scaleY: number = 1;
 
-  // translateX: number = 0;
-  // translateY: number = 0;
-  flipX: boolean = false;
-  flipY: boolean = false;
+
+  
 
   set scaleX(val: number) {
     if (val < 0) {
@@ -81,9 +123,6 @@ export class ShapeBase {
     return this._scaleY;
   }
 
-
-
-
   get translateX() {
     return this.left + this.width * this.centerXRatio;
   }
@@ -91,6 +130,9 @@ export class ShapeBase {
   get translateY() {
     return this.top + this.height * this.centerYRatio;
   }
+
+  flipX: boolean = false;
+  flipY: boolean = false;
 
 
 
@@ -123,14 +165,6 @@ export class ShapeBase {
     setPropertyMapping(this, 'skewY', '_skewY', radianToDegree, degreeToRadian);
 
 
-    // debugger;
-    // bindComputedProperty(
-    //   this, 
-    //   'translateX', 
-    //   ['left', 'width', 'centerXRatio'], 
-    //   (left: number, width: number, centerXRatio: number) => left + width * centerXRatio
-    // )
-    
   }
 
 
@@ -204,7 +238,7 @@ export class ShapeBase {
     );
     this.control.mtr.setXY(
       this.left + this.width / 2 , 
-      this.top - this.height * ROTATE_CONTROL_LENGTH_RATIO 
+      this.top - MTR_LENGTH
     );
   }
 
@@ -300,53 +334,62 @@ export class ShapeBase {
     this.top = y;
   }
 
-  scaleToPoint(pointer: Point2D, type: string, lastPointer: Point2D, lastDims: any) {
-    
+  scaleToControlPoint(pointType: string, pointer: Point2D,  lastPointer: Point2D, lastDims: any) {
 
-    pointer = rotateVector2D(
-      pointer.sub(new Point2D(this.translateX, this.translateY)), 
-      -this._angle
+    const inverseMatrix = invertMatrix2X3(this.getTransformMatrix2X3Array());
+
+    pointer = transformPoint2D(
+      pointer,
+      inverseMatrix
     );
 
-    lastPointer = rotateVector2D(
-      lastPointer.sub(new Point2D(this.translateX, this.translateY)), 
-      -this._angle
+    lastPointer = transformPoint2D(
+      lastPointer,
+      inverseMatrix
     );
 
-    const xDiff = pointer.x - lastPointer.x;
-    const yDiff = pointer.y - lastPointer.y;
+
+    const diff = pointer.sub(lastPointer);
 
     
-    if (type === 'tl') {
+    
+    if (pointType === 'tl') {
       this.left =  pointer.x + this.translateX;
       this.top = pointer.y + this.translateY;
-      this.width = lastDims.width - xDiff;
-      this.height = lastDims.height - yDiff;
-    } else if ( type === 'tr') {
+      this.width = lastDims.width - diff.x;
+      this.height = lastDims.height - diff.y;
+    } else if ( pointType === 'tr') {
       this.left = pointer.x + this.translateX - this.width;
       this.top =  pointer.y + this.translateY;
-      this.width = lastDims.width + xDiff;
-      this.height = lastDims.height - yDiff;
-    } else if ( type === 'bl') {
+      this.width = lastDims.width + diff.x;
+      this.height = lastDims.height - diff.y;
+    } else if ( pointType === 'bl') {
       this.left = pointer.x + this.translateX;
       this.top =  pointer.y + this.translateY - this.height;
-      this.width = lastDims.width - xDiff;
-      this.height = lastDims.height + yDiff;
-    } else if ( type === 'br') {
+      this.width = lastDims.width - diff.x;
+      this.height = lastDims.height + diff.y;
+    } else if ( pointType === 'br') {
       this.left = pointer.x + this.translateX - this.width;
       this.top =  pointer.y + this.translateY - this.height;
-      this.width = lastDims.width + xDiff;
-      this.height = lastDims.height + yDiff;
+      this.width = lastDims.width + diff.x;
+      this.height = lastDims.height + diff.y;
+    } else if ( pointType === 'ml' ) {
+      this.left =  pointer.x + this.translateX;
+      this.width = lastDims.width - diff.x;   
+    } else if ( pointType === 'mr') {
+      this.width = lastDims.width + diff.x;
+    } else if ( pointType === 'mt') {
+      this.top =  pointer.y + this.translateY;
+      this.height = lastDims.height - diff.y;
+    } else if ( pointType === 'mb') {
+      this.height = lastDims.height + diff.y;
     }
 
-    
+    // this.calcControls();
 
     
 
-
     
-
-
   }
 
 
@@ -357,7 +400,7 @@ export class ShapeBase {
     for (let i = 0; i < names.length; i++) {
       controlPoint = this.control[names[i]]; 
       controlPoint = transformPoint2D(
-        controlPoint.subSelf(new Point2D(this.translateX, this.translateY)), 
+        controlPoint.sub(new Point2D(this.translateX, this.translateY)), 
         this.getTransformMatrix2X3Array()
       );
       

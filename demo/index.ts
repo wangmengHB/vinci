@@ -50,9 +50,9 @@ const source = new Source();
 source.loadFromSource(TEST_IMAGE).then(() => {
 
   vinci.addShape(polygon);
-  vinci.addShape(source);
+  
   vinci.addShape(rect);
-
+  vinci.addShape(source);
   vinci.render();
 
   source.set({ left: 100, top: 100});
