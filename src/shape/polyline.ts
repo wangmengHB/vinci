@@ -22,15 +22,10 @@ export class Polyline extends ShapeBase {
   }
 
   move(x: number, y: number) {
-
     const diff = new Point2D(x, y).subSelf(new Point2D(this.left, this.top));
-
     this.points.forEach((point: Point2D) => {
-
       point.addSelf(diff);
-
-    })
-
+    });
     this.left = x;
     this.top = y;
   }
@@ -52,13 +47,7 @@ export class Polyline extends ShapeBase {
       point.addSelf(diff);
       point.setX(this.left + (point.x - this.left) * scaleX );
       point.setY(this.top + (point.y - this.top) * scaleY );
-
     })
-
-    
-
-
-
 
   }
 
@@ -80,7 +69,7 @@ export class Polyline extends ShapeBase {
         point.y - this.translateY,
       );
     });
-    ctx.fill(this.path2D);
+    ctx.stroke(this.path2D);
   }
   
 

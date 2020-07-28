@@ -11,7 +11,7 @@ import { ShapeBase } from '../shape/shape-base';
 export class VinciCanvas {
 
   private readonly _wrapperEl: HTMLDivElement = document.createElement('div');
-  private readonly _lowerCanvas: HTMLCanvasElement = document.createElement('canvas');
+  public readonly _lowerCanvas: HTMLCanvasElement = document.createElement('canvas');
   private readonly _upperCanvas: HTMLCanvasElement = document.createElement('canvas');
   private readonly _lowerCtx: CanvasRenderingContext2D;
 
@@ -31,12 +31,17 @@ export class VinciCanvas {
   private action: string | null = null;
 
 
+
+  // test
+  backgroundColor: string = 'rgba(255, 255, 255, 0)';
+
+
   constructor() {
 
     this._lowerCtx = this._lowerCanvas.getContext('2d') as CanvasRenderingContext2D;
 
     this._initDOM();
-    this.setCanvasDimensions(750, 750);
+    this.setCanvasDimensions(700, 750);
     this._initEventListeners();
 
 
@@ -74,13 +79,22 @@ export class VinciCanvas {
 
   render() {
     this._lowerCtx.clearRect(0, 0, this.width, this.height);
+
+    // test code, remove later
+    this._lowerCtx.save();
+    this._lowerCtx.fillStyle = this.backgroundColor;
+    this._lowerCtx.fillRect(0, 0, this.width, this.height);
+    this._lowerCtx.restore();
+
+    // --------
+
     this.shapes.forEach((item: any) => {
       item.render(this._lowerCtx, this.viewportTransform);
       item.renderControls(this._lowerCtx, this.viewportTransform);
     });
   }
 
-  addShape(obj: any) {
+  add(obj: ShapeBase) {
     this.shapes.push(obj);
   }
 

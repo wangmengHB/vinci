@@ -415,6 +415,24 @@ export class ShapeBase {
   }
 
 
+  // TODO: layer index operation
+  upward() {
+
+  }
+
+  downward() {
+
+  }
+
+  toFront() {
+
+  }
+
+  toBack() {
+
+  }
+
+
 
 
 

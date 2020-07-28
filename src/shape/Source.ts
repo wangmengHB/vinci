@@ -9,6 +9,9 @@ import { Rect } from './rect';
 
 
 
+// use left/top/width/height to do image scale
+
+
 export class Source extends Rect{
 
   type: string = 'source';
