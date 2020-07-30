@@ -1,8 +1,8 @@
 import { 
   setElementStyle, getIdentityMatrix2X3, Matrix2X3Array, getPointFromEvent, Point2D,
-  transformPoint2D,
+  transformPoint2D, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
-import { addListener, removeListener, radianToDegree, degreeToRadian } from '../util';
+import { addListener, removeListener,  } from '../util';
 import { ShapeBase } from '../shape/shape-base';
 
 

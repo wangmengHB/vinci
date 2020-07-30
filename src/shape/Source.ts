@@ -1,6 +1,6 @@
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
-  getIdentityTransformOption, TRANSFORM_OPTION, Point2D,
+  getIdentityTransformOptions, TRANSFORM_OPTIONS, Point2D,
   transformPoint2D,
   getPointFromEvent,
 } from 'web-util-kit';

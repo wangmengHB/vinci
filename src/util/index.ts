@@ -21,9 +21,6 @@ export function removeListener(element: HTMLElement | Document | Window, eventNa
   element && element.removeEventListener(eventName as any, handler as any, options);
 };
 
-export const radianToDegree = (radian: number) => radian / PI_BY_180;
-export const degreeToRadian = (degree: number) => degree * PI_BY_180;
-
 
 // export function isMainEvent(evt: Event) {
 //  if (evt.isPrimary === true) {
