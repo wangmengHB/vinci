@@ -18,6 +18,12 @@ export class Ellipse extends ShapeBase {
   fillStyle: string = 'rgba(0,0,0,0.3)';
 
 
+  constructor(options?: any) {
+    super(options);
+    super.set(options);
+  }
+
+
   calcDimensions() {
     this.width = this.rx * 2;
     this.height = this.ry * 2;

@@ -8,6 +8,10 @@ export class Polyline extends ShapeBase {
 
   points: Point2D[] = [];
 
+  constructor(options: any) {
+    super(options);
+    super.set(options);
+  }
 
   calcDimensions() {
     const points = this.points;
@@ -47,7 +51,7 @@ export class Polyline extends ShapeBase {
       point.addSelf(diff);
       point.setX(this.left + (point.x - this.left) * scaleX );
       point.setY(this.top + (point.y - this.top) * scaleY );
-    })
+    });
 
   }
 

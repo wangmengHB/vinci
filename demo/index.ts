@@ -21,83 +21,85 @@ TEST_IMAGE.src = TEST_IMAGE_URL;
 
 
 
-
-
-
-
 async function init() {
-const rect1 = new Rect();
-rect1.width = 30;
-rect1.height = 100;
-rect1.top = 500;
-rect1.left = 200;
 
-const rect2 = new Rect();
-rect2.width = 30;
-rect2.height = 100;
-rect2.top = 500;
-rect2.left = 250;
-rect2.scaleY = 0.8;
+const rect1 = new Rect({
+  width: 30,
+  height: 100,
+  top: 500,
+  left: 100,
+});
 
-const rect3 = new Rect();
-rect3.width = 30;
-rect3.height = 100;
-rect3.top = 500;
-rect3.left = 300;
-rect3.scaleY = 1.2;
+const rect2 = new Rect({
+  width: 30,
+  height: 80,
+  top: 500,
+  left: 200,
+});
+
+
+const rect3 = new Rect({
+  width: 30,
+  height: 120,
+  top: 500,
+  left: 300,
+});
+
 
 
 const randomPoint = () => {
   return new Point2D(Math.random() * 300, Math.random() * 300)
 }
 
-const polygon = new Polygon();
-polygon.points = [
-  // randomPoint(),
-  // randomPoint(),
-  // randomPoint(),
-  // randomPoint(),
-  // randomPoint(),
-  // randomPoint(),
-  new Point2D(100, 500),
-  new Point2D(300, 700),
-  new Point2D(10, 700),
-];
+const polygon = new Polygon({
+  points: [
+    // randomPoint(),
+    // randomPoint(),
+    // randomPoint(),
+    // randomPoint(),
+    // randomPoint(),
+    // randomPoint(),
+    new Point2D(100, 500),
+    new Point2D(300, 700),
+    new Point2D(10, 700),
+  ]
+});
 
 
-const ellipse1 = new Ellipse();
-ellipse1.cx = 318;
-ellipse1.cy = 174;
-ellipse1.rx = 30;
-ellipse1.ry = 30;
-ellipse1.fillStyle = 'rgba(255,192,203,0.8)';
-ellipse1.strokeStyle = 'rgba(255,192,203,0.8)';
-
-const ellipse2 = new Ellipse();
-ellipse2.cx = 385;
-ellipse2.cy = 180;
-ellipse2.rx = 30;
-ellipse2.ry = 30;
-ellipse2.fillStyle = 'rgba(255,192,203,0.8)';
-ellipse2.strokeStyle = 'rgba(255,192,203,0.8)';
-
-const polyline = new Polyline();
-polyline.points = [
-  new Point2D(310 + 45, 180),
-  new Point2D(380 - 45, 180),
-];
-polyline.fillStyle = 'rgba(0,0,0,0.8)';
-polyline.strokeStyle = 'rgba(0,0,0,0.8)';
-polyline.lineWidth = 20;
+const ellipse1 = new Ellipse({
+  cx: 318,
+  cy: 174,
+  rx: 30,
+  ry: 30,
+  fillStyle: 'rgba(255,192,203,0.8)',
+  strokeStyle: 'rgba(255,192,203,0.8)',
+});
 
 
+const ellipse2 = new Ellipse({
+  cx: 385,
+  cy: 180,
+  rx: 30,
+  ry: 30,
+  fillStyle: 'rgba(255,192,203,0.8)',
+  strokeStyle: 'rgba(255,192,203,0.8)',
+});
 
 
-const ellipse3 = new Ellipse();
-ellipse3.cx = 330;
-ellipse3.cy = 260;
-ellipse3.rx = 30;
-ellipse3.ry = 30;
+const polyline = new Polyline({
+  points: [
+    new Point2D(310 + 45, 180),
+    new Point2D(380 - 45, 180),
+  ],
+  fillStyle: 'rgba(0,0,0,0.8)',
+  strokeStyle: 'rgba(0,0,0,0.8)',
+  lineWidth: 20
+
+});
+
+
+
+
 
 
 const source = new Source();

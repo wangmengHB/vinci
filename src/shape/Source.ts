@@ -21,8 +21,9 @@ export class Source extends Rect{
 
   source: HTMLImageElement | HTMLCanvasElement;
 
-  constructor() {
-    super();
+  constructor(options?: any) {
+    super(options);
+    super.set(options);
   }
 
 

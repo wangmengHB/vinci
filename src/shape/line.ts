@@ -14,5 +14,10 @@ export class Line extends ShapeBase {
   x2: number = 0;
   y2: number = 0;
 
+  constructor(options?: any) {
+    super(options);
+    super.set(options);
+  }
+
 
 }

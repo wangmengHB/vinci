@@ -1,4 +1,3 @@
-import { ContextFill, ContextStroke } from '../context'; 
 import { 
   saveContext, setPropertyMapping, 
   bindComputedProperty, MTR_LENGTH,
@@ -9,6 +8,7 @@ import {
   transformPoint2D, invertMatrix2X3, calcRotateMatrix2X3, rotateVector2D,
   getPointFromEvent, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
+import { Control, ControlPoint } from '../auxiliary/control';
 
 
 const ROTATE_CONTROL_LENGTH_RATIO = 0.1;
@@ -16,18 +16,14 @@ const ROTATE_CONTROL_LENGTH_RATIO = 0.1;
 
 export class ShapeBase {
 
-  type: string = 'shape-base';
+  readonly type: string = 'shape-base';
 
   // dimensions of the shape
-
   left: number = 0;
   top: number = 0;
-
-  
   private _width: number = 0;
   private _height: number = 0;
-  private _centerXRatio: number = 0.5;
-  private _centerYRatio: number = 0.5;
+  
 
   set width(nextVal: number) {
     if (nextVal < 0) {
@@ -47,6 +43,10 @@ export class ShapeBase {
 
   get height() { return this._height }
 
+  // center point relative ratio
+  private _centerXRatio: number = 0.5;
+  private _centerYRatio: number = 0.5;
+
   set centerXRatio(nextVal: number) {
     if (nextVal < 0 || nextVal > 1) {
       return;
@@ -65,24 +65,17 @@ export class ShapeBase {
 
   get centerYRatio() { return this._centerYRatio }
 
-  
-  // height: number = 0;
-  // centerXRatio: number = 0.5;
-  // centerYRatio: number = 0.5;
-
-
   // drawing style
   lineWidth: number = 2;
   strokeWidth: number = 2;
   fillStyle: string = 'blue';
   strokeStyle: string = 'yellow';
+  // more style put here
   
 
 
-
-  fill: ContextFill = new ContextFill();
-  stroke: ContextStroke = new ContextStroke();
-  path2D: Path2D = new Path2D();
+  
+  
 
 
   // transform
@@ -129,37 +122,47 @@ export class ShapeBase {
   flipY: boolean = false;
 
 
-
-
-
+  path2D: Path2D = new Path2D();
 
   active: boolean = false;
 
 
 
-  // controller points
-  control: any = {
-    mtr: new Point2D(),
-    mt: new Point2D(),
-    tl: new Point2D(),
-    ml: new Point2D(),
-    bl: new Point2D(),
-    mb: new Point2D(),
-    br: new Point2D(),
-    mr: new Point2D(),
-    tr: new Point2D(),
-  }
-
-
-  constructor() {
-
-
+  // controll points 
+  control: Control = new Control();
   
 
+
+  constructor(options?: any ) {
+    this.set(options);
+  }
+
+  set(key: string, val: any): void;   
+  set(options?: object): void;
+  set(arg1: any, arg2?: any): void {
+    if (typeof arg1 === 'string') {
+      // TODO 1: limit valid properties
+
+      (this as any)[arg1] = arg2;
+
+      return;
+    }
+
+    if (arg1 && typeof arg1 === 'object') {
+      // TODO set 
+      Object.keys(arg1).forEach((propname: string) => {
+        // TODO 1: limit valid properties
+
+        (this as any)[propname] = arg1[propname];
+      })
+
+      return;
+    }
+
   }
 
 
-  getOptions(): TRANSFORM_OPTIONS {
+  getTransformOptions(): TRANSFORM_OPTIONS {
     return {
       angle: this.angle,
       skewX: this.skewX,
@@ -188,77 +191,17 @@ export class ShapeBase {
     });
   }
   
+  // dimension change --> shape change
+  calcShape() {}
 
-
+  // shape change --> dimension change
   // TODO calculate real dimension: left, top, width, height
   calcDimensions() { } 
 
 
   calcControls() {
-    this.control.tl.setXY(
-      this.left , 
-      this.top ,
-    );
-    this.control.mt.setXY(
-      this.left + this.width / 2 , 
-      this.top ,
-    );
-    this.control.tr.setXY(
-      this.left + this.width , 
-      this.top 
-    );
-    this.control.mr.setXY(
-      this.left + this.width , 
-      this.top + this.height / 2 
-    );
-    this.control.br.setXY(
-      this.left + this.width , 
-      this.top + this.height 
-    );
-    this.control.mb.setXY(
-      this.left + this.width / 2 , 
-      this.top + this.height 
-    );
-    this.control.bl.setXY(
-      this.left , 
-      this.top + this.height 
-    );
-    this.control.ml.setXY(
-      this.left , 
-      this.top + this.height / 2 
-    );
-    this.control.mtr.setXY(
-      this.left + this.width / 2 , 
-      this.top - MTR_LENGTH
-    );
+    this.control.calculate(this.width, this.height);
   }
-
-
-  set(key: string, val: any): void;   
-  set(options: object): void;
-  set(arg1: any, arg2?: any): void {
-    if (typeof arg1 === 'string') {
-      // TODO 1: limit valid properties
-
-      (this as any)[arg1] = arg2;
-
-      return;
-    }
-
-    if (arg1 && typeof arg1 === 'object') {
-      // TODO set 
-      Object.keys(arg1).forEach((propname: string) => {
-        // TODO 1: limit valid properties
-
-        (this as any)[propname] = arg1[propname];
-      })
-
-      return;
-    }
-
-  }
-
-  
 
 
 
@@ -274,6 +217,8 @@ export class ShapeBase {
       return;
     }
 
+    // TODO check is control visible
+
     ctx.strokeStyle = 'blue';
     ctx.setLineDash([4,4]);
     ctx.strokeRect(
@@ -283,22 +228,22 @@ export class ShapeBase {
       this.height
     );
     ctx.beginPath();
-    ctx.moveTo(
-      this.control.mt.x - this.translateX,
-      this.control.mt.y - this.translateY,
-    );
-    ctx.lineTo(
-      this.control.mtr.x - this.translateX,
-      this.control.mtr.y - this.translateY,
-    );
+
+
+    const mt = this.control.getPoint('mt') as Point2D;
+    const mtr = this.control.getPoint('mtr') as Point2D;
+
+    ctx.moveTo(mt.x, mt.y);
+    ctx.lineTo(mtr.x, mtr.y);
     ctx.stroke();
     
     ctx.fillStyle = 'red';
-    Object.keys(this.control).forEach((name: string) => {
+    this.control.getAllVisiblePoints().forEach((cp: ControlPoint) => {
+      const point = cp.point;
       ctx.beginPath();
       ctx.arc(
-        this.control[name].x - this.translateX,
-        this.control[name].y - this.translateY,
+        point.x,
+        point.y,
         6, 0, Math.PI * 2
       );
       ctx.fill();
@@ -385,24 +330,7 @@ export class ShapeBase {
 
 
   findControlCorner(pointer: Point2D) {
-    const names = Object.keys(this.control);
-    let controlPoint, name;
-
-    for (let i = 0; i < names.length; i++) {
-      controlPoint = this.control[names[i]]; 
-      controlPoint = transformPoint2D(
-        controlPoint.sub(new Point2D(this.translateX, this.translateY)), 
-        this.getTransformMatrix2X3Array()
-      );
-      
-      if (pointer.distanceFrom(controlPoint) < 10 ) {
-        name = names[i];
-        break;
-      }
-    }
-
-    return name;
-    
+    return this.control.findType(pointer, this.getTransformMatrix2X3Array());
   }
 
 

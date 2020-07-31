@@ -13,9 +13,23 @@ export class Polygon extends Polyline {
 
   @saveContext()
   render(ctx: CanvasRenderingContext2D, vpt: any) { 
-    super.render(ctx, vpt);
+    this.path2D = new Path2D();
+    this.points.forEach((point: Point2D, index: number) => {
+      if (index === 0) {
+        this.path2D.moveTo(
+          point.x - this.translateX, 
+          point.y - this.translateY
+        );
+      }
+      this.path2D.lineTo(
+        point.x - this.translateX, 
+        point.y - this.translateY,
+      );
+    });
+    this.path2D.closePath();
+    ctx.stroke(this.path2D);
     ctx.fill(this.path2D);
   }
-
   
 }
+

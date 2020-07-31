@@ -8,8 +8,6 @@ const { createDecorator } = decorators;
 
 const identify = (_: any) => _;
 
-const PI_BY_180 = Math.PI / 180;
-
 
 
 export function addListener(element: HTMLElement | Document | Window, eventName: string, handler: Function, options?: any) {

@@ -4,27 +4,31 @@ import { saveContext, setPropertyMapping } from '../util';
 
 export class Rect extends ShapeBase {
 
-  type: string = 'rect';
+  readonly type: string = 'rect';
 
+  // shape defined in svg element
   x: number = 0;
   y: number = 0;
-
   width: number = 0;
   height: number = 0;
 
+  // border-radius
   rx: number = 0;
-
   ry: number = 0;
 
 
-  constructor() {
-    super();
-    setPropertyMapping(this, 'x', 'left');
-    setPropertyMapping(this, 'y', 'top');
+  constructor(options: any) {
+    super(options);
+    // setPropertyMapping(this, 'x', 'left');
+    // setPropertyMapping(this, 'y', 'top');
+
+    super.set(options);
   }
 
-
-  calcDimensions() {}
+  // from geom shape to dimensions
+  calcDimensions() {
+    
+  }
 
   @saveContext()
   render(ctx: CanvasRenderingContext2D, vpt: any)  { 

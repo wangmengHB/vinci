@@ -9,6 +9,12 @@ export class Circle extends ShapeBase {
   cy: number = 0;
   r: number = 0;
 
+
+  constructor(options?: any) {
+    super(options);
+    super.set(options);
+  }
+
   // constructor() {
   //   super();
 
