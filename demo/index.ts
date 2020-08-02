@@ -34,7 +34,7 @@ const rect2 = new Rect({
   width: 30,
   height: 80,
   top: 500,
-  left: 200,
+  left: 150,
 });
 
 
@@ -42,7 +42,7 @@ const rect3 = new Rect({
   width: 30,
   height: 120,
   top: 500,
-  left: 300,
+  left: 200,
 });
 
 
@@ -53,12 +53,6 @@ const randomPoint = () => {
 
 const polygon = new Polygon({
   points: [
-    // randomPoint(),
-    // randomPoint(),
-    // randomPoint(),
-    // randomPoint(),
-    // randomPoint(),
-    // randomPoint(),
     new Point2D(100, 500),
     new Point2D(300, 700),
     new Point2D(10, 700),
@@ -102,8 +96,10 @@ const polyline = new Polyline({
 
 
 
-const source = new Source();
-source.set({ left: 20, top: 20});
+const source = new Source({
+  left: 20, top: 20
+});
+
 
 
 (window as any).rect1 = rect1;

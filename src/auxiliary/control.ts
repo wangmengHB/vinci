@@ -5,8 +5,7 @@ import {
   getPointFromEvent, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
 import { 
-  saveContext, setPropertyMapping, 
-  bindComputedProperty, MTR_LENGTH,
+  saveContext, MTR_LENGTH,
 } from '../util';
 
 

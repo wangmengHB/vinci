@@ -1,6 +1,5 @@
 import { 
-  saveContext, setPropertyMapping, 
-  bindComputedProperty, MTR_LENGTH,
+  saveContext, safeMixins, hasDimsProp,
 } from '../util';
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
@@ -14,7 +13,7 @@ import { Control, ControlPoint } from '../auxiliary/control';
 const ROTATE_CONTROL_LENGTH_RATIO = 0.1;
 
 
-export class ShapeBase {
+export abstract class ShapeBase {
 
   readonly type: string = 'shape-base';
 
@@ -24,7 +23,6 @@ export class ShapeBase {
   private _width: number = 0;
   private _height: number = 0;
   
-
   set width(nextVal: number) {
     if (nextVal < 0) {
       return;
@@ -72,11 +70,6 @@ export class ShapeBase {
   strokeStyle: string = 'yellow';
   // more style put here
   
-
-
-  
-  
-
 
   // transform
   // 角度单位
@@ -126,39 +119,30 @@ export class ShapeBase {
 
   active: boolean = false;
 
-
-
   // controll points 
   control: Control = new Control();
+
+
+  // extra info stored in shape for other usage
+  other: any = {};
   
-
-
   constructor(options?: any ) {
-    this.set(options);
+    safeMixins(this, options);
   }
 
   set(key: string, val: any): void;   
   set(options?: object): void;
   set(arg1: any, arg2?: any): void {
-    if (typeof arg1 === 'string') {
-      // TODO 1: limit valid properties
-
-      (this as any)[arg1] = arg2;
-
-      return;
+    let nextOpts: any = {};
+    if (typeof arg1 === 'string' && arg2 !== undefined) {
+      nextOpts = {
+        [arg1]: arg2
+      };
+    } else if (arg1 && typeof arg1 === 'object') {
+      nextOpts = {...arg1};
     }
-
-    if (arg1 && typeof arg1 === 'object') {
-      // TODO set 
-      Object.keys(arg1).forEach((propname: string) => {
-        // TODO 1: limit valid properties
-
-        (this as any)[propname] = arg1[propname];
-      })
-
-      return;
-    }
-
+    safeMixins(this, nextOpts);
+    this.normalize(nextOpts);
   }
 
 
@@ -192,21 +176,25 @@ export class ShapeBase {
   }
   
   // dimension change --> shape change
-  calcShape() {}
+  abstract calcShape();
 
   // shape change --> dimension change
   // TODO calculate real dimension: left, top, width, height
-  calcDimensions() { } 
-
+  abstract calcDimensions();
+  
+  normalize(nextOptions: any) {
+    if (hasDimsProp(nextOptions)) {
+      this.calcShape();
+    }
+    this.calcDimensions();
+  }
 
   calcControls() {
     this.control.calculate(this.width, this.height);
   }
 
-
-
-  @saveContext()
-  render(ctx: CanvasRenderingContext2D, vpt: any) {}
+  // must use chape geom to render
+  abstract render(ctx: CanvasRenderingContext2D, vpt: any)
 
 
 
@@ -268,6 +256,7 @@ export class ShapeBase {
   move(x: number, y: number) {
     this.left = x;
     this.top = y;
+    this.calcShape();
   }
 
   scaleToControlPoint(pointType: string, pointer: Point2D,  lastPointer: Point2D, lastDims: any) {
@@ -320,6 +309,8 @@ export class ShapeBase {
     } else if ( pointType === 'mb') {
       this.height = lastDims.height + diff.y;
     }
+
+    this.calcShape();
 
     // this.calcControls();
 

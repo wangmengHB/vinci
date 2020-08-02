@@ -1,7 +1,5 @@
 import { ShapeBase } from './shape-base';
-import { saveContext } from '../util';
-
-
+import { saveContext, safeMixins, hasDimsProp } from '../util';
 
 
 export class Line extends ShapeBase {
@@ -14,9 +12,35 @@ export class Line extends ShapeBase {
   x2: number = 0;
   y2: number = 0;
 
-  constructor(options?: any) {
+  constructor(options: any) {
     super(options);
-    super.set(options);
+    safeMixins(this, options);
+    // 以 dimension 的属性优先，以此为基准计算 shape
+    this.normalize(options); 
+  }
+
+  // dimension change --> shape change
+  calcShape() {
+    console.log(this.left, this.top);
+  }
+
+  // shape change --> dimension change
+  // TODO calculate real dimension: left, top, width, height
+  calcDimensions() {
+
+
+  }
+
+  @saveContext()
+  render(ctx: CanvasRenderingContext2D, vpt: any)  { 
+    this.path2D.rect(
+      this.left - this.translateX, 
+      this.top - this.translateY,
+      this.width,
+      this.height,
+    );
+    ctx.fill(this.path2D);
+    ctx.stroke(this.path2D);
   }
 
 

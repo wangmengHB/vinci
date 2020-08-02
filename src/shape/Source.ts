@@ -1,10 +1,10 @@
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
   getIdentityTransformOptions, TRANSFORM_OPTIONS, Point2D,
-  transformPoint2D,
+  transformPoint2D, invertMatrix2X3, isTransparent, 
   getPointFromEvent,
 } from 'web-util-kit';
-import { saveContext, MTR_LENGTH} from '../util';
+import { saveContext, safeMixins, hasDimsProp } from '../util';
 import { Rect } from './rect';
 
 
@@ -21,9 +21,13 @@ export class Source extends Rect{
 
   source: HTMLImageElement | HTMLCanvasElement;
 
+  private _cacheCanvas: HTMLCanvasElement = document.createElement('canvas');
+  private _cacheCtx: CanvasRenderingContext2D = this._cacheCanvas.getContext('2d') as CanvasRenderingContext2D;
+
   constructor(options?: any) {
     super(options);
-    super.set(options);
+    safeMixins(this, options);
+    this.normalize(options);
   }
 
 
@@ -34,6 +38,9 @@ export class Source extends Rect{
       this.height = this.source.height;
       this.originalWidth = this.source.width;
       this.originalHeight = this.source.height;
+      this._cacheCanvas.width = this.source.width;
+      this._cacheCanvas.height = this.source.height;
+      this._cacheCtx.drawImage(this.source, 0, 0);
     }
     if (source instanceof HTMLCanvasElement) {
       this.source = source;
@@ -41,6 +48,8 @@ export class Source extends Rect{
       this.height = this.source.height;
       this.originalWidth = this.source.width;
       this.originalHeight = this.source.height;
+      this._cacheCanvas.width = this.source.width;
+      this._cacheCanvas.height = this.source.height;
     }
 
   }
@@ -53,13 +62,13 @@ export class Source extends Rect{
     }
 
     ctx.drawImage(
-      this.source, 
+      this._cacheCanvas, 
       0,
       0,
-      this.originalWidth,
-      this.originalHeight,
-      this.left - this.translateX, 
-      this.top - this.translateY,
+      this._cacheCanvas.width,
+      this._cacheCanvas.height,
+      this.x - this.translateX, 
+      this.y - this.translateY,
       this.width,
       this.height,
     );
@@ -67,30 +76,28 @@ export class Source extends Rect{
     this.path2D = new Path2D();
 
     this.path2D.rect(
-      this.left - this.translateX, 
-      this.top - this.translateY,
+      this.x - this.translateX, 
+      this.y - this.translateY,
       this.width,
       this.height,
     );
   }
 
 
-  scaleToControlPoint(pointType: string, pointer: Point2D,  lastPointer: Point2D, lastDims: any) {
-    super.scaleToControlPoint(pointType, pointer,  lastPointer, lastDims);
-
-    // this.scaleX = this.width / this.originalWidth;
-    // this.scaleY = this.height / this.originalHeight;
-
-    // console.log(this.scaleX, this.width, this.originalWidth);
-
-    // this.width = this.originalWidth;
-    
-    // this.height = this.originalHeight;
-
-    // console.log(this.scaleX, this.width, this.originalWidth);
-
-
-
+  @saveContext()
+  isPointInPath(ctx: CanvasRenderingContext2D, point: any) {
+    if (!ctx.isPointInPath(this.path2D, point.x, point.y)) {
+      return false;
+    }
+    const inverseMatrix = invertMatrix2X3(this.getTransformMatrix2X3Array());
+    const realPointer = transformPoint2D(
+      point,
+      inverseMatrix
+    ).addSelf(new Point2D(this.translateX - this.x, this.translateY - this.y));
+    if(isTransparent(this._cacheCtx, realPointer.x, realPointer.y, 1)) {
+      return false
+    }
+    return true;
   }
 
 

@@ -1,6 +1,7 @@
 
 import { decorators } from 'util-kit';
 import { ShapeBase } from '../shape/shape-base';
+import { DIMS_PROPERTIES } from './const';
 export * from './const';
 
 
@@ -51,7 +52,6 @@ export function saveContext() {
       ctx.fillStyle = this.fillStyle;
       ctx.strokeStyle = this.strokeStyle;
 
-
       this.calcDimensions();
       this.calcControls();
       ctx.setTransform(...this.getTransformMatrix2X3Array());
@@ -63,71 +63,44 @@ export function saveContext() {
 }
 
 
-
-export function setPropertyMapping(
-  obj: any, 
-  prop1: string, 
-  prop2: string, 
-  valueFn: Function = identify,          // obj[prop1] = valueFn(obj[prop2])
-  inverseFn: Function = identify,        // obj[prop2] = inverseFn(obj[prop1])
-) {
-
-  let _value1 = obj[prop1];
-  let _value2 = inverseFn(obj[prop1]);
-
-  const setter1 = (next: any) => {
-    _value1 =  next;
-    _value2 = inverseFn(next);
+export function hasDimsProp(obj: any) {
+  if (!obj) {
+    return false;
   }
-
-  const setter2 = (next: any) => {
-    _value2 =  next;
-    _value1 = valueFn(next);
-  }
-
-  Object.defineProperty(obj, prop1, {
-    get: () => _value1,
-    set: setter1,    
-  });
-
-  Object.defineProperty(obj, prop2, {
-    get: () => _value2,
-    set: setter2,
-  });
-
-}
-
-
-export function bindComputedProperty(
-  obj: any, 
-  dest: string, 
-  sources: string[], 
-  computFn: Function,
-) {
-
-  
-  
-
-  var handler = {
-    set: function(obj: any, prop: string, value: any) {
-      obj[prop] = value;
-
-      if (sources.indexOf(prop) > -1) {
-        obj[dest] = computFn(...sources.map((name: string) => obj[name]))
-      }
-        
+  for (let i = 0; i < DIMS_PROPERTIES.length; i++) {
+    const prop = DIMS_PROPERTIES[i];
+    if (obj[prop] && typeof obj[prop] === 'number') {
       return true;
     }
-  };
-  var p = new Proxy(obj, handler);
-
-  (window as any).p = p;
-
-
-    // p.age = 100;
-    // console.log(p.age);  //100
-    // p.age = 'Jack';      //TypeError: The age is not an integer
-  
+  }
+  return false;
 }
+
+
+export function safeMixins(target: any, source: any, backup: string = 'other') {
+  if (!source || !target) {
+    return;
+  }
+  target[backup] = target[backup] || {};
+  const keys = Object.keys(source);
+
+  keys.forEach((key: string) => {
+    if (typeof target[key] === 'undefined') {    
+      target[backup][key] = source[key];
+    } else {
+      target[key] = source[key];
+    }
+  });
+
+  const otherKeys = Object.keys(target[backup]);
+
+  otherKeys.forEach((otherKey: string) => {
+    if (typeof target[otherKey] !== 'undefined') {
+      delete target[backup][otherKey];
+    }
+  });
+
+}
+
 
 
