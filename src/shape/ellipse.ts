@@ -17,7 +17,7 @@ export class Ellipse extends ShapeBase {
   fillStyle: string = 'rgba(0,0,0,0.3)';
 
 
-  constructor(options: any) {
+  constructor(options?: any) {
     super(options);
     safeMixins(this, options);
     this.normalize(options);

@@ -11,7 +11,7 @@ export class Polyline extends ShapeBase {
   lineWidth: number = 10;
   lineDash: number[] = [5, 5];
 
-  constructor(options: any) {
+  constructor(options?: any) {
     super(options);
     safeMixins(this, options);
     // 以 dimension 的属性优先，以此为基准计算 shape

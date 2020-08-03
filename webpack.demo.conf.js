@@ -29,8 +29,8 @@ module.exports = {
   ],
   context: path.resolve(__dirname),
   entry: {
-    // 'demo': path.resolve(__dirname, './demo/video-demo/index.ts'),
-    'demo': path.resolve(__dirname, './demo/index.ts'),
+    'demo': path.resolve(__dirname, './demo/video-demo/index.ts'),
+    // 'demo': path.resolve(__dirname, './demo/index.ts'),
   },
   output: {
       path: path.resolve(__dirname, './dist'),

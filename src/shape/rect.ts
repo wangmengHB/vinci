@@ -17,7 +17,7 @@ export class Rect extends ShapeBase {
   ry: number = 0;
 
 
-  constructor(options: any) {
+  constructor(options?: any) {
     super(options);
     safeMixins(this, options);
     // 以 dimension 的属性优先，以此为基准计算 shape

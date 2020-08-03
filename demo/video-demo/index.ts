@@ -130,25 +130,31 @@ function onBeat() {
 
 
 async function init() {
-const rect1 = new Rect();
-rect1.width = 30;
-rect1.height = 100;
-rect1.top = 500;
-rect1.left = 200;
+const rect1 = new Rect({
+  width: 30,
+  height: 100,
+  top: 500,
+  left: 200,
+});
 
-const rect2 = new Rect();
-rect2.width = 30;
-rect2.height = 100;
-rect2.top = 500;
-rect2.left = 250;
-rect2.scaleY = 0.8;
 
-const rect3 = new Rect();
-rect3.width = 30;
-rect3.height = 100;
-rect3.top = 500;
-rect3.left = 300;
-rect3.scaleY = 1.2;
+const rect2 = new Rect({
+  width: 30,
+  height: 100,
+  top: 500,
+  left: 250,
+  scaleY: 0.8,
+});
+
+
+const rect3 = new Rect({
+  width: 30,
+  height: 100,
+  top: 500,
+  left: 300,
+  scaleY: 1.2,
+});
+
 
 
 const randomPoint = () => {
@@ -259,45 +265,65 @@ function render() {
     }
 
     vinci.backgroundColor = backgroundColor;
-    // (window as any).source.angle = rotation;
-    (window as any).rect1.top = 600 - (rectMin + distortDiam);
-    (window as any).rect1.height = rectMin + distortDiam;
-    (window as any).rect1.angle = rotation;
+    
 
-    (window as any).rect2.top = 600 - (rectMin + distortDiam);
-    (window as any).rect2.height = rectMin + distortDiam;
-    (window as any).rect2.angle = rotation;
+    (window as any).rect1.set({
+      top: 600 - (rectMin + distortDiam),
+      height: rectMin + distortDiam,
+      angle: rotation
+    });
 
-    (window as any).rect3.top = 600 - (rectMin + distortDiam);
-    (window as any).rect3.height = rectMin + distortDiam;
-    (window as any).rect3.angle = rotation;
+    (window as any).rect2.set({
+      top: 600 - (rectMin + distortDiam),
+      height: rectMin + distortDiam,
+      angle: rotation
+    });
+
+    (window as any).rect3.set({
+      top: 600 - (rectMin + distortDiam),
+      height: rectMin + distortDiam,
+      angle: rotation
+    });
+
+
+    
 
 
     if (rectRotate) {
-      (window as any).ellipse1.scaleX = 1 + distortDiam / SCALE_BASE;
-      (window as any).ellipse1.scaleY = 1 + distortDiam / SCALE_BASE;
-      (window as any).ellipse2.scaleX = 1 - distortDiam / SCALE_BASE;
-      (window as any).ellipse2.scaleY = 1 - distortDiam / SCALE_BASE;
+
+    
+      (window as any).ellipse1.set({
+        scaleX: 1 + distortDiam / SCALE_BASE,
+        scaleY: 1 + distortDiam / SCALE_BASE,
+      });
+
+      (window as any).ellipse2.set({
+        scaleX: 1 - distortDiam / SCALE_BASE,
+        scaleY: 1 - distortDiam / SCALE_BASE,
+      });
+
+      
     } else {
-      (window as any).ellipse1.scaleX = 1 - distortDiam / SCALE_BASE;
-      (window as any).ellipse1.scaleY = 1 - distortDiam / SCALE_BASE;
-      (window as any).ellipse2.scaleX = 1 + distortDiam / SCALE_BASE;
-      (window as any).ellipse2.scaleY = 1 + distortDiam / SCALE_BASE;
+      (window as any).ellipse1.set({
+        scaleX: 1 - distortDiam / SCALE_BASE,
+        scaleY: 1 - distortDiam / SCALE_BASE,
+      });
+
+      (window as any).ellipse2.set({
+        scaleX: 1 + distortDiam / SCALE_BASE,
+        scaleY: 1 + distortDiam / SCALE_BASE,
+      });
     }
 
 
   }
 
+  requestAnimationFrame(render);
 
-
-  vinci.render();
-  setTimeout(() => {
-    requestAnimationFrame(render);
-  }, 10);
+  
 }
 
-init();
-render();
+init().then(render);
 
 
 const chunks: any = [];
