@@ -18,6 +18,11 @@ TEST_IMAGE.src = TEST_IMAGE_URL;
 
 
 
+const ORIGINX = 50;
+const ORIGINY = 400;
+const MAX_TOP = 400;
+const MIN_TOP = 100;
+
 
 
 
@@ -27,14 +32,14 @@ const rect1 = new Rect({
   width: 30,
   height: 100,
   top: 500,
-  left: 100,
+  left: ORIGINX + 50,
 });
 
 const rect2 = new Rect({
   width: 30,
   height: 80,
   top: 500,
-  left: 150,
+  left: ORIGINX + 100,
 });
 
 
@@ -42,14 +47,12 @@ const rect3 = new Rect({
   width: 30,
   height: 120,
   top: 500,
-  left: 200,
+  left: ORIGINX + 150,
 });
 
 
 
-const randomPoint = () => {
-  return new Point2D(Math.random() * 300, Math.random() * 300)
-}
+
 
 const polygon = new Polygon({
   points: [
@@ -80,15 +83,22 @@ const ellipse2 = new Ellipse({
 });
 
 
-const polyline = new Polyline({
+const polyline1 = new Polyline({
   points: [
-    new Point2D(310 + 45, 180),
-    new Point2D(380 - 45, 180),
+    new Point2D(50, 400),
+    new Point2D(400, 400),
   ],
-  fillStyle: 'rgba(0,0,0,0.8)',
   strokeStyle: 'rgba(0,0,0,0.8)',
-  lineWidth: 20
+  lineWidth: 4
+});
 
+const polyline2 = new Polyline({
+  points: [
+    new Point2D(50, 400),
+    new Point2D(50, 100),
+  ],
+  strokeStyle: 'rgba(0,0,0,0.8)',
+  lineWidth: 4
 });
 
 
@@ -122,8 +132,20 @@ vinci.add(polygon);
 vinci.add(ellipse1);
 vinci.add(ellipse2);
 
+// vinci.add(polyline1);
+// vinci.add(polyline2);
+
+// for(let i = 0; i < 10; i++) {
+//   const height = Math.random() * ( MAX_TOP - MIN_TOP);
+
+//   const rect = new Rect({width: 30, height, left: 50 + 50 * i, top: 400 - height});
+//   vinci.add(rect);
+// }
+
+
+
 // vinci.add(ellipse3);
-vinci.render();
+// vinci.render();
 
 
 }
@@ -131,17 +153,10 @@ vinci.render();
 
 
 
-
-function render() {
-  
-  vinci.render();
-  setTimeout(() => {
-    requestAnimationFrame(render);
-  }, 10);
-}
 
 init();
-render();
+
+
 
 
 

@@ -1,5 +1,5 @@
 import { 
-  saveContext, safeMixins, hasDimsProp,
+  saveContext, safeMixins, hasDimsProp, needRendering, 
 } from '../util';
 import { 
   Matrix2X3Array, loadFromImage, composeMatrix2X3, 
@@ -8,12 +8,13 @@ import {
   getPointFromEvent, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
 import { Control, ControlPoint } from '../auxiliary/control';
+import { StaticVinci } from '../canvas/static-canvas';
+import { ObservableShape } from '../event/observable-shape';
 
 
-const ROTATE_CONTROL_LENGTH_RATIO = 0.1;
 
 
-export abstract class ShapeBase {
+export abstract class ShapeBase extends ObservableShape {
 
   readonly type: string = 'shape-base';
 
@@ -68,7 +69,9 @@ export abstract class ShapeBase {
   strokeWidth: number = 2;
   fillStyle: string = 'blue';
   strokeStyle: string = 'yellow';
+  lineDash: number[] = [];
   // more style put here
+  
   
 
   // transform
@@ -125,13 +128,20 @@ export abstract class ShapeBase {
 
   // extra info stored in shape for other usage
   other: any = {};
+
+
+  vinci: StaticVinci | null = null;
+
   
   constructor(options?: any ) {
+    super();
     safeMixins(this, options);
   }
 
+
   set(key: string, val: any): void;   
   set(options?: object): void;
+  @needRendering()
   set(arg1: any, arg2?: any): void {
     let nextOpts: any = {};
     if (typeof arg1 === 'string' && arg2 !== undefined) {
@@ -143,6 +153,17 @@ export abstract class ShapeBase {
     }
     safeMixins(this, nextOpts);
     this.normalize(nextOpts);
+  }
+
+  setVinci(vinci: StaticVinci) {
+    this.vinci = vinci;
+    this.dispose();
+    const renderer = () => vinci.requestRender();
+    this.onAdded(renderer);
+    this.onSelected(renderer);
+    this.onRemoved(renderer);
+    this.onSelected(renderer);
+    this.onModified(renderer);
   }
 
 
@@ -182,7 +203,7 @@ export abstract class ShapeBase {
   // TODO calculate real dimension: left, top, width, height
   abstract calcDimensions();
   
-  normalize(nextOptions: any) {
+  normalize(nextOptions?: any) {
     if (hasDimsProp(nextOptions)) {
       this.calcShape();
     }
@@ -200,10 +221,10 @@ export abstract class ShapeBase {
 
   @saveContext()
   renderControls(ctx: CanvasRenderingContext2D, vpt: Matrix2X3Array) {
-    
     if (!this.active) {
       return;
     }
+    this.calcControls();
 
     // TODO check is control visible
 
@@ -249,16 +270,19 @@ export abstract class ShapeBase {
   }
 
 
+  @needRendering()
   rotate(angle: number) {
     this.angle = angle;
   }
 
+  @needRendering()
   move(x: number, y: number) {
     this.left = x;
     this.top = y;
     this.calcShape();
   }
 
+  @needRendering()
   scaleToControlPoint(pointType: string, pointer: Point2D,  lastPointer: Point2D, lastDims: any) {
 
     const inverseMatrix = invertMatrix2X3(this.getTransformMatrix2X3Array());
@@ -276,8 +300,6 @@ export abstract class ShapeBase {
 
     const diff = pointer.sub(lastPointer);
 
-    
-    
     if (pointType === 'tl') {
       this.left =  pointer.x + this.translateX;
       this.top = pointer.y + this.translateY;
@@ -311,12 +333,6 @@ export abstract class ShapeBase {
     }
 
     this.calcShape();
-
-    // this.calcControls();
-
-    
-
-    
   }
 
 
@@ -327,18 +343,33 @@ export abstract class ShapeBase {
 
   // TODO: layer index operation
   upward() {
-
+    if (!this.vinci) {
+      return;
+    }
+    this.vinci.upwardObject(this);
   }
 
   downward() {
+    if (!this.vinci) {
+      return;
+    }
+    this.vinci.downwardObject(this);
 
   }
 
   toFront() {
+    if (!this.vinci) {
+      return;
+    }
+    this.vinci.toFrontObject(this);
 
   }
 
   toBack() {
+    if (!this.vinci) {
+      return;
+    }
+    this.vinci.toBackObject(this);
 
   }
 

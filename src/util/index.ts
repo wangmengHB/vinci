@@ -47,13 +47,12 @@ export function saveContext() {
       if (!(ctx instanceof CanvasRenderingContext2D)) {
         throw new Error('failed to get CanvasRenderingContext2D');
       }
+      this.normalize();
       ctx.save();
       ctx.lineWidth = this.lineWidth;
       ctx.fillStyle = this.fillStyle;
       ctx.strokeStyle = this.strokeStyle;
-
-      this.calcDimensions();
-      this.calcControls();
+      ctx.setLineDash(this.lineDash);
       ctx.setTransform(...this.getTransformMatrix2X3Array());
       const res: any = fn.apply(this, arguments);
       ctx.restore();
@@ -61,6 +60,19 @@ export function saveContext() {
     };
   });
 }
+
+
+export function needRendering() {
+  return createDecorator((fn, key) => {
+    return function(this: ShapeBase) {
+      const res: any = fn.apply(this, arguments);
+      this.fire('onModified');
+      return res;
+    };
+  });
+}
+
+
 
 
 export function hasDimsProp(obj: any) {

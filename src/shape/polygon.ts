@@ -9,6 +9,8 @@ export class Polygon extends Polyline {
   type: string = 'polygon';
 
   fillStyle: string = 'orange';
+  lineWidth: number = 2;
+  lineDash: number[] = [];
 
 
   @saveContext()

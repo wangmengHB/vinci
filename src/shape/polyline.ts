@@ -8,6 +8,9 @@ export class Polyline extends ShapeBase {
 
   points: Point2D[] = [];
 
+  lineWidth: number = 10;
+  lineDash: number[] = [5, 5];
+
   constructor(options: any) {
     super(options);
     safeMixins(this, options);

@@ -11,7 +11,7 @@ root.appendChild(vinci.getDOMElement());
 
 
 // test image
-const TEST_IMAGE_URL = './boy2.png';
+const TEST_IMAGE_URL = '../boy2.png';
 const TEST_IMAGE = new Image();
 TEST_IMAGE.src = TEST_IMAGE_URL;
 

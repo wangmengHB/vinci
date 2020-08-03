@@ -4,25 +4,17 @@ import {
 } from 'web-util-kit';
 import { addListener, removeListener,  } from '../util';
 import { ShapeBase } from '../shape/shape-base';
+import { StaticVinci } from './static-canvas';
 
 
 
 
-export class VinciCanvas {
+export class VinciCanvas extends StaticVinci {
 
   private readonly _wrapperEl: HTMLDivElement = document.createElement('div');
-  public readonly _lowerCanvas: HTMLCanvasElement = document.createElement('canvas');
+  // used to support drawing feature.
   private readonly _upperCanvas: HTMLCanvasElement = document.createElement('canvas');
-  private readonly _lowerCtx: CanvasRenderingContext2D;
-
-  private width: number = 500;
-  private height: number = 400;
-
-  private viewportTransform: Matrix2X3Array = getIdentityMatrix2X3();
-
-  private shapes: any[] = [];
-
-  activeShape: ShapeBase | null = null;
+  
 
   private _lastPointer: Point2D | null = null; 
   private _lastDims: any = {};
@@ -32,18 +24,14 @@ export class VinciCanvas {
 
 
 
-  // test
-  backgroundColor: string = 'rgba(255, 255, 255, 0)';
+  
 
 
-  constructor() {
-
-    this._lowerCtx = this._lowerCanvas.getContext('2d') as CanvasRenderingContext2D;
-
+  constructor(options?: any) {
+    super(options);
     this._initDOM();
     this.setCanvasDimensions(700, 750);
     this._initEventListeners();
-
 
   }
 
@@ -77,31 +65,7 @@ export class VinciCanvas {
     });
   }
 
-  render() {
-    this._lowerCtx.clearRect(0, 0, this.width, this.height);
-
-    // test code, remove later
-    this._lowerCtx.save();
-    this._lowerCtx.fillStyle = this.backgroundColor;
-    this._lowerCtx.fillRect(0, 0, this.width, this.height);
-    this._lowerCtx.restore();
-
-    // --------
-
-    this.shapes.forEach((item: any) => {
-      item.render(this._lowerCtx, this.viewportTransform);
-      item.renderControls(this._lowerCtx, this.viewportTransform);
-    });
-  }
-
-  add(obj: ShapeBase) {
-    this.shapes.push(obj);
-  }
-
-  discardActiveObject() {
-    this.shapes.forEach((shape: any) => shape.active = false);
-    this.activeShape = null;
-  }
+  
 
   
 
@@ -150,7 +114,6 @@ export class VinciCanvas {
     // this is a workaround to having double listeners.
     this.removeListeners();
     this.addOrRemove(addListener);
-    console.log('register');
   }
 
   
@@ -159,8 +122,6 @@ export class VinciCanvas {
     const canvasElement = this._upperCanvas;
     eventHelper(window, 'resize', this._onResize);
 
-    // 注意：这里没有 mouseup 事件
-    console.log(canvasElement);
     
     eventHelper(canvasElement, 'mousedown', this._onMouseDown);
     eventHelper(canvasElement, 'mousemove', this._onMouseMove, { passive: false } as any);
@@ -316,6 +277,7 @@ export class VinciCanvas {
       this.activeShape = targetShape as ShapeBase;
       this.action = 'move';
       this.activeShape.active = true;
+      this.activeShape.fire('onSelected');
       this._lastDims = {
         left: this.activeShape.left,
         top: this.activeShape.top,
