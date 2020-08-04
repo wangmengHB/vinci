@@ -4,6 +4,8 @@ vinci.js is an interactive 2D graphic canvas library engine. It can be used to s
 
 Currently, it already has the basic interactive feature, and it is still in development. 
 
+Below is the demo capture from vinci.js.     
+
 <img alt="demo" src="https://github.com/wangmengHB/vinci/blob/master/images/demo1.png" height="300" />
 
 # install
