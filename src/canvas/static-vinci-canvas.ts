@@ -2,17 +2,17 @@ import {
   setElementStyle, getIdentityMatrix2X3, Matrix2X3Array, getPointFromEvent, Point2D,
   transformPoint2D, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
-import { ShapeBase } from '../shape/shape-base';
-import { ObservableCanvas } from '../event/observable-canvas';
+import { ShapeBase } from '../shapes/shape-base';
+import { VinciEvent } from '../event';
 import { decorators } from 'util-kit';
 
 const { debounce } = decorators;
 
 
 
-export class StaticVinci extends ObservableCanvas {
+export class StaticVinciCanvas extends VinciEvent {
 
-  public readonly _lowerCanvas: HTMLCanvasElement = document.createElement('canvas');
+  protected readonly _lowerCanvas: HTMLCanvasElement = document.createElement('canvas');
   protected readonly _lowerCtx: CanvasRenderingContext2D = this._lowerCanvas.getContext('2d') as CanvasRenderingContext2D;
 
   protected width: number = 500;
@@ -28,10 +28,12 @@ export class StaticVinci extends ObservableCanvas {
   // test
   backgroundColor: string = 'rgba(255, 255, 255, 0)';
 
-
-
   constructor(options?: any) {
     super();
+  }
+
+  getCanvas() {
+    return this._lowerCanvas;
   }
 
   render() {
@@ -83,6 +85,10 @@ export class StaticVinci extends ObservableCanvas {
   }
 
   discardActiveObject() {
+    if (this.activeShape) {
+      this.activeShape.fire('onUnSelected');
+    }
+
     this.shapes.forEach((shape: any) => shape.active = false);
     this.activeShape = null;
   }

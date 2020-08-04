@@ -1,7 +1,7 @@
 import { Emitter, Event, Disposable } from 'util-kit';
 
 
-export class ObservableCanvas extends Disposable {
+export class VinciEvent extends Disposable {
 
 
   private readonly _onObjectAdded = this._register(new Emitter<this>());

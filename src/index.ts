@@ -1,6 +1,6 @@
 export * from './canvas/vinci-canvas';
-export * from './canvas/static-canvas';
+export * from './canvas/static-vinci-canvas';
 
-export * from './shape';
+export * from './shapes';
 
 

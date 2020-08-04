@@ -7,10 +7,21 @@ export class Rect extends ShapeBase {
   readonly type: string = 'rect';
 
   // shape defined in svg specification
-  x: number = 0;
-  y: number = 0;
-  width: number = 0;
-  height: number = 0;
+  set x(val: number) {
+    this.left = val;
+  }
+
+  get x() {
+    return this.left;
+  }
+
+  set y(val: number) {
+    this.top = val;
+  }
+
+  get y() {
+    return this.top;
+  }
 
   // border-radius
   rx: number = 0;
@@ -25,17 +36,11 @@ export class Rect extends ShapeBase {
   }
 
   // dimension change --> shape change
-  calcShape() {
-    this.x = this.left;
-    this.y = this.top;
-  }
+  calcShape() {}
 
   // shape change --> dimension change
   // TODO calculate real dimension: left, top, width, height
-  calcDimensions() {
-    this.left = this.x;
-    this.top = this.y;
-  }
+  calcDimensions() {}
 
   
   @saveContext()
@@ -56,5 +61,6 @@ export class Rect extends ShapeBase {
 
   
 }
+
 
 

@@ -8,13 +8,12 @@ import {
   getPointFromEvent, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
 import { Control, ControlPoint } from '../auxiliary/control';
-import { StaticVinci } from '../canvas/static-canvas';
-import { ObservableShape } from '../event/observable-shape';
+import { StaticVinciCanvas } from '../canvas/static-vinci-canvas';
+import { ShapeEvent } from '../event';
 
 
 
-
-export abstract class ShapeBase extends ObservableShape {
+export abstract class ShapeBase extends ShapeEvent {
 
   readonly type: string = 'shape-base';
 
@@ -130,7 +129,7 @@ export abstract class ShapeBase extends ObservableShape {
   other: any = {};
 
 
-  vinci: StaticVinci | null = null;
+  vinci: StaticVinciCanvas | null = null;
 
   
   constructor(options?: any ) {
@@ -155,14 +154,14 @@ export abstract class ShapeBase extends ObservableShape {
     this.normalize(nextOpts);
   }
 
-  setVinci(vinci: StaticVinci) {
+  setVinci(vinci: StaticVinciCanvas) {
     this.vinci = vinci;
     this.dispose();
     const renderer = () => vinci.requestRender();
     this.onAdded(renderer);
-    this.onSelected(renderer);
     this.onRemoved(renderer);
     this.onSelected(renderer);
+    this.onUnSelected(renderer);
     this.onModified(renderer);
   }
 

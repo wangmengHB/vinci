@@ -2,6 +2,8 @@ import { Point2D } from 'web-util-kit';
 import { ShapeBase } from './shape-base';
 import { saveContext, safeMixins, hasDimsProp } from '../util';
 
+
+
 export class Polyline extends ShapeBase {
 
   type: string = 'polyline';

@@ -3,13 +3,13 @@ import {
   transformPoint2D, radianToDegree, degreeToRadian, 
 } from 'web-util-kit';
 import { addListener, removeListener,  } from '../util';
-import { ShapeBase } from '../shape/shape-base';
-import { StaticVinci } from './static-canvas';
+import { ShapeBase } from '../shapes/shape-base';
+import { StaticVinciCanvas } from './static-vinci-canvas';
 
 
 
 
-export class VinciCanvas extends StaticVinci {
+export class VinciCanvas extends StaticVinciCanvas {
 
   private readonly _wrapperEl: HTMLDivElement = document.createElement('div');
   // used to support drawing feature.
@@ -30,7 +30,7 @@ export class VinciCanvas extends StaticVinci {
   constructor(options?: any) {
     super(options);
     this._initDOM();
-    this.setCanvasDimensions(700, 750);
+    this.setDimensions(700, 750);
     this._initEventListeners();
 
   }
@@ -39,14 +39,14 @@ export class VinciCanvas extends StaticVinci {
     return this._wrapperEl;
   }
 
-  setCanvasDimensions(width: number, height: number) {
+  setDimensions(width: number, height: number) {
     this.width = width;
     this.height = height;
     this._lowerCanvas.width = width;
     this._lowerCanvas.height = height;
-
+    this._upperCanvas.width = width;
+    this._upperCanvas.height = height;
     this.setCssDimensions(width, height);
-
   }
 
 
@@ -68,16 +68,11 @@ export class VinciCanvas extends StaticVinci {
   
 
   
-
-
-
   private _initDOM() {
     setElementStyle(this._wrapperEl, {
       position: 'relative',
       touchAction: 'none',
       userSelect: 'none',
-      width: '100%',
-      height: '100%',
     });
 
     setElementStyle(this._lowerCanvas, {
@@ -187,11 +182,7 @@ export class VinciCanvas extends StaticVinci {
   }
 
 
-  private _onMouseMove = (e: Event) => {
-    // !this.allowTouchScrolling && e.preventDefault && e.preventDefault();
-    this.__onMouseMove(e);
-    
-  }
+  
 
   private _onMouseWheel = (e: Event) => {
 
@@ -207,13 +198,6 @@ export class VinciCanvas extends StaticVinci {
 
 
   // real event handler
-
-
-
-  
-    
-  
-
   private __onMouseDown = (e: Event) => {
     const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
     this._lastPointer = pointer;
@@ -222,9 +206,7 @@ export class VinciCanvas extends StaticVinci {
       // TODO find target corner, to decide which action
       let type = this.activeShape.findControlCorner(pointer);
       console.log('type', type);
-
-      if (type) {
-        
+      if (type) {       
         this._lastAngle = this.activeShape.angle;
         this._lastDims = {
           left: this.activeShape.left,
@@ -233,39 +215,14 @@ export class VinciCanvas extends StaticVinci {
           height: this.activeShape.height
         };
         this.action = type;
-
         return;
       }
-
-
-      // TODO check if any control point is hit
-      
-
-      // const mtr = transformPoint2D(
-      //   this.activeShape.control.mtr, 
-      //   this.activeShape.getTransformMatrix2X3Array()
-      // );
-      
-      
-
-      // if (this._lastPointer.distanceFrom(mtr) < 10 ) {
-      //   this._lastAngle = this.activeShape.angle;
-      //   this.activeShape.rotating = true;
-      //   this.activeShape.moving = false;
-        
-
-      //   return;
-      // }
     }
 
-
-    
     const list = this.shapes.slice().reverse();
-
     let targetShape;
     for (let i = 0; i < list.length; i++) {
       const shape = list[i];
-      
       if (shape.isPointInPath(this._lowerCtx, pointer)) {
         targetShape = shape;  
         break;
@@ -288,72 +245,38 @@ export class VinciCanvas extends StaticVinci {
       
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // var pointer = this._pointer;
-    // // save pointer for check in __onMouseUp event
-    // this._previousPointer = pointer;
-    // var shouldRender = this._shouldRender(target),
-    //     shouldGroup = this._shouldGroup(e, target);
-    // if (this._shouldClearSelection(e, target)) {
-    //   this.discardActiveObject(e);
-    // }
-    // else if (shouldGroup) {
-    //   this._handleGrouping(e, target);
-    //   target = this._activeObject;
-    // }
-
-    // if (this.selection && (!target ||
-    //   (!target.selectable && !target.isEditing && target !== this._activeObject))) {
-    //   this._groupSelector = {
-    //     ex: pointer.x,
-    //     ey: pointer.y,
-    //     top: 0,
-    //     left: 0
-    //   };
-    // }
-
-    // if (target) {
-    //   var alreadySelected = target === this._activeObject;
-    //   if (target.selectable) {
-    //     this.setActiveObject(target, e);
-    //   }
-    //   var corner = target._findTargetCorner(
-    //     this.getPointer(e, true),
-    //     fabric.util.isTouchEvent(e)
-    //   );
-    //   target.__corner = corner;
-    //   if (target === this._activeObject && (corner || !shouldGroup)) {
-    //     var control = target.controls[corner],
-    //         mouseDownHandler = control && control.getMouseDownHandler(e, target, control);
-    //     if (mouseDownHandler) {
-    //       mouseDownHandler(e, target, control);
-    //     }
-    //     this._setupCurrentTransform(e, target, alreadySelected);
-    //   }
-    // }
-    // this._handleEvent(e, 'down');
-    
-
   }
 
 
-  private __onMouseMove = (e: Event) => {
+  private _onMouseMove = (e: Event) => {
+    const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
+
+    const list = this.shapes.slice().reverse();
+    let found = false;
+    for (let i = 0; i < list.length; i++) {
+      const shape = list[i];
+      if (shape.isPointInPath(this._lowerCtx, pointer)) {
+        found = true;
+        break;
+      }
+      if (shape.findControlCorner(pointer)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      this._upperCanvas.style.cursor = 'pointer';
+    } else {
+      this._upperCanvas.style.cursor = 'default';
+    }
+
+
+
     if (!this.activeShape) {
       return;
     }
-    const pointer = getPointFromEvent(e as MouseEvent, this._lowerCanvas);
+    
 
     if (this.action === 'move' && this._lastPointer && this._lastDims) {
       this.activeShape.move(
@@ -384,72 +307,20 @@ export class VinciCanvas extends StaticVinci {
     }
     
 
-
   }
 
 
-  // /**
-  //    * @private
-  //    * @param {Event} e Event fired on mousemove
-  //    */
-  //   _transformObject: function(e) {
-  //     var pointer = this.getPointer(e),
-  //         transform = this._currentTransform;
-
-  //     transform.reset = false;
-  //     transform.target.isMoving = true;
-  //     transform.shiftKey = e.shiftKey;
-  //     transform.altKey = e[this.centeredKey];
-
-  //     this._performTransformAction(e, transform, pointer);
-  //     transform.actionPerformed && this.requestRenderAll();
-  //   },
-
-  //   /**
-  //    * @private
-  //    */
-  //   _performTransformAction: function(e, transform, pointer) {
-  //     var x = pointer.x,
-  //         y = pointer.y,
-  //         action = transform.action,
-  //         actionPerformed = false,
-  //         actionHandler = transform.actionHandler,
-  //         // this object could be created from the function in the control handlers
-  //         options = {
-  //           target: transform.target,
-  //           e: e,
-  //           transform: transform,
-  //           pointer: pointer
-  //         };
-
-  //     if (action === 'drag') {
-  //       actionPerformed = this._translateObject(x, y);
-  //       if (actionPerformed) {
-  //         this._fire('moving', options);
-  //         this.setCursor(options.target.moveCursor || this.moveCursor);
-  //       }
-  //     }
-  //     else if (actionHandler) {
-  //       (actionPerformed = actionHandler(e, transform, x, y)) && this._fire(action, options);
-  //     }
-  //     transform.actionPerformed = transform.actionPerformed || actionPerformed;
-  //   },
-
-
-
+  
 
   private __onMouseUp = (e: Event) => {
     if (!this.activeShape) {
       return;
     }
 
-
     this._lastPointer = null;
     this._lastDims = null;
     this._lastAngle = null;
     this.action = null;
-
-
 
   }
 

@@ -1,6 +1,7 @@
 import { ShapeBase } from './shape-base';
 import { saveContext, safeMixins, hasDimsProp } from '../util';
 
+
 export class Circle extends ShapeBase {
 
   type: string = 'circle';

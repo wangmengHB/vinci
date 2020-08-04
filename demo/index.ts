@@ -1,9 +1,12 @@
 
 import { 
-  VinciCanvas, Source, Rect, Polygon, 
-  Ellipse, Polyline,
+  VinciCanvas,  Shapes
 } from '../src';
 import { Point2D } from 'web-util-kit';
+
+const {Ellipse, Polyline, Source, Rect, Polygon,} = Shapes;
+
+
 
 const vinci = new VinciCanvas();
 const root = document.getElementById('root') as HTMLDivElement;

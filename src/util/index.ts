@@ -1,6 +1,6 @@
 
 import { decorators } from 'util-kit';
-import { ShapeBase } from '../shape/shape-base';
+import { ShapeBase } from '../shapes/shape-base';
 import { DIMS_PROPERTIES } from './const';
 export * from './const';
 
@@ -65,7 +65,9 @@ export function saveContext() {
 export function needRendering() {
   return createDecorator((fn, key) => {
     return function(this: ShapeBase) {
+      // TODO: check if key properties is changed
       const res: any = fn.apply(this, arguments);
+      // TODO: check if key properties is changed
       this.fire('onModified');
       return res;
     };

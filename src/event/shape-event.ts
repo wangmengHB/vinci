@@ -1,7 +1,7 @@
 import { Emitter, Event, Disposable } from 'util-kit';
 
 
-export class ObservableShape extends Disposable {
+export class ShapeEvent extends Disposable {
 
 
   
@@ -16,6 +16,10 @@ export class ObservableShape extends Disposable {
   private readonly _onSelected = this._register(new Emitter<this>());
 
   readonly onSelected: Event<this> = this._onSelected.event;
+
+  private readonly _onUnSelected = this._register(new Emitter<this>());
+
+  readonly onUnSelected: Event<this> = this._onUnSelected.event;
 
   private readonly _onModified = this._register(new Emitter<this>());
 
