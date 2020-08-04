@@ -30,12 +30,10 @@ export class VinciCanvas extends StaticVinciCanvas {
   constructor(options?: any) {
     super(options);
     this._initDOM();
-    this.setDimensions(700, 750);
     this._initEventListeners();
-
   }
 
-  getDOMElement() {
+  getElement(): HTMLElement {
     return this._wrapperEl;
   }
 
@@ -97,6 +95,7 @@ export class VinciCanvas extends StaticVinciCanvas {
 
     this._wrapperEl.appendChild(this._lowerCanvas);
     this._wrapperEl.appendChild(this._upperCanvas);
+    this.setDimensions(this.width, this.height);
 
   }
 

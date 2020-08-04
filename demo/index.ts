@@ -4,13 +4,16 @@ import {
 } from '../src';
 import { Point2D } from 'web-util-kit';
 
-const {Ellipse, Polyline, Source, Rect, Polygon,} = Shapes;
+const {Ellipse, Polyline, ImageShape, Rect, Polygon, Circle } = Shapes;
 
 
 
 const vinci = new VinciCanvas();
+
+vinci.setDimensions(700, 750);
+
 const root = document.getElementById('root') as HTMLDivElement;
-root.appendChild(vinci.getDOMElement());
+root.appendChild(vinci.getElement());
 
 
 // test image
@@ -47,6 +50,13 @@ const rect2 = new Rect({
 
 
 const rect3 = new Rect({
+  width: 30,
+  height: 120,
+  top: 500,
+  left: ORIGINX + 150,
+});
+
+const rect4 = new Rect({
   width: 30,
   height: 120,
   top: 500,
@@ -105,11 +115,15 @@ const polyline2 = new Polyline({
 });
 
 
+const circle = new Circle({
+  cx: 500,
+  cy: 600,
+  r: 100,
+});
 
 
 
-
-const source = new Source({
+const source = new ImageShape({
   left: 20, top: 20
 });
 
@@ -124,12 +138,13 @@ const source = new Source({
 
 (window as any).vinci = vinci;
 
-await source.loadFromSource(TEST_IMAGE);
+await source.loadFromImage(TEST_IMAGE);
 
 vinci.add(source);
 vinci.add(rect1);
 vinci.add(rect2);
 vinci.add(rect3);
+vinci.add(rect4);
 vinci.add(polygon);
 // vinci.add(polyline);
 vinci.add(ellipse1);
@@ -149,6 +164,8 @@ vinci.add(ellipse2);
 
 // vinci.add(ellipse3);
 // vinci.render();
+
+vinci.add(circle);
 
 
 }

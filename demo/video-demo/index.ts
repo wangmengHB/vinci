@@ -4,11 +4,11 @@ import {
 } from '../../src';
 import { Point2D } from 'web-util-kit';
 
-const {Ellipse, Polyline, Source, Rect, Polygon,} = Shapes;
+const {Ellipse, Polyline, ImageShape, Rect, Polygon,} = Shapes;
 
 const vinci = new VinciCanvas();
 const root = document.getElementById('root') as HTMLDivElement;
-root.appendChild(vinci.getDOMElement());
+root.appendChild(vinci.getElement());
 
 
 // test image
@@ -211,7 +211,7 @@ ellipse3.rx = 30;
 ellipse3.ry = 30;
 
 
-const source = new Source();
+const source = new ImageShape();
 source.set({ left: 20, top: 20});
 
 
@@ -224,7 +224,7 @@ source.set({ left: 20, top: 20});
 
 (window as any).vinci = vinci;
 
-await source.loadFromSource(TEST_IMAGE);
+await source.loadFromImage(TEST_IMAGE);
 
 vinci.add(source);
 vinci.add(rect1);
@@ -250,20 +250,28 @@ vinci.render();
 
 
 function render() {
+  requestAnimationFrame(render);
   if (amplitude) {
     var level = amplitude.getLevel();
 
+    if (level <= 0.001) {
+      return;
+    }
+
     detectBeat(level);
+    
 
     // distort the rectangle based based on the amp
     var distortDiam = (window as any).map(level, 0, 1, 0, MAX_ENERGY);
-    
+  
     // distortion direction shifts each beat
     if (rectRotate) {
       var rotation = 15;
     } else {
       var rotation = 45;
     }
+
+    
 
     vinci.backgroundColor = backgroundColor;
     
@@ -319,7 +327,7 @@ function render() {
 
   }
 
-  requestAnimationFrame(render);
+  
 
   
 }

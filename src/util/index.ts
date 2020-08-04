@@ -1,14 +1,12 @@
 
-import { decorators } from 'util-kit';
+import { decorators, objects } from 'util-kit';
 import { ShapeBase } from '../shapes/shape-base';
-import { DIMS_PROPERTIES } from './const';
+import { DIMS_PROPERTIES, RENDERING_PROPERTIES, } from './const';
 export * from './const';
 
 
 const { createDecorator } = decorators;
-
-const identify = (_: any) => _;
-
+const { deepClone, equals } = objects;
 
 
 export function addListener(element: HTMLElement | Document | Window, eventName: string, handler: Function, options?: any) {
@@ -65,16 +63,16 @@ export function saveContext() {
 export function needRendering() {
   return createDecorator((fn, key) => {
     return function(this: ShapeBase) {
-      // TODO: check if key properties is changed
+      const prev = getRenderingProperties(this);
       const res: any = fn.apply(this, arguments);
-      // TODO: check if key properties is changed
-      this.fire('onModified');
+      const current = getRenderingProperties(this);
+      if (!equals(current, prev)) {
+        this.fire('onModified');
+      }
       return res;
     };
   });
 }
-
-
 
 
 export function hasDimsProp(obj: any) {
@@ -89,6 +87,15 @@ export function hasDimsProp(obj: any) {
   }
   return false;
 }
+
+export function getRenderingProperties(obj: any) {
+  const res: any = {};
+  RENDERING_PROPERTIES.forEach((prop: string) => {
+    res[prop] = deepClone(obj[prop]);
+  })
+  return res;
+}
+
 
 
 export function safeMixins(target: any, source: any, backup: string = 'other') {

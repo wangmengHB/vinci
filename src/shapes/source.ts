@@ -17,8 +17,8 @@ export class Source extends Rect{
 
   source: HTMLImageElement | HTMLCanvasElement;
 
-  private _cacheCanvas: HTMLCanvasElement = document.createElement('canvas');
-  private _cacheCtx: CanvasRenderingContext2D = this._cacheCanvas.getContext('2d') as CanvasRenderingContext2D;
+  protected _cacheCanvas: HTMLCanvasElement = document.createElement('canvas');
+  protected _cacheCtx: CanvasRenderingContext2D = this._cacheCanvas.getContext('2d') as CanvasRenderingContext2D;
 
   constructor(options?: any) {
     super(options);
@@ -46,8 +46,8 @@ export class Source extends Rect{
       this.originalHeight = this.source.height;
       this._cacheCanvas.width = this.source.width;
       this._cacheCanvas.height = this.source.height;
+      this._cacheCtx.drawImage(this.source, 0, 0);
     }
-
   }
 
 

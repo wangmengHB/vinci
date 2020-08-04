@@ -32,6 +32,10 @@ export class StaticVinciCanvas extends VinciEvent {
     super();
   }
 
+  getElement(): HTMLElement {
+    return this._lowerCanvas;
+  }
+
   getCanvas() {
     return this._lowerCanvas;
   }
