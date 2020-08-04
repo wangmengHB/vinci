@@ -85,6 +85,7 @@ export class Source extends Rect{
     if (!ctx.isPointInPath(this.path2D, point.x, point.y)) {
       return false;
     }
+    
     const inverseMatrix = invertMatrix2X3(this.getTransformMatrix2X3Array());
     const realPointer = transformPoint2D(
       point,

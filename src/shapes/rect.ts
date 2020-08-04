@@ -27,6 +27,8 @@ export class Rect extends ShapeBase {
   rx: number = 0;
   ry: number = 0;
 
+  fillStyle: string = 'green';
+
 
   constructor(options?: any) {
     super(options);

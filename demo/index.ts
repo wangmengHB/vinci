@@ -98,20 +98,20 @@ const ellipse2 = new Ellipse({
 
 const polyline1 = new Polyline({
   points: [
-    new Point2D(50, 400),
-    new Point2D(400, 400),
+    new Point2D(10, 400),
+    new Point2D(600, 400),
   ],
   strokeStyle: 'rgba(0,0,0,0.8)',
-  lineWidth: 4
+  lineWidth: 2
 });
 
 const polyline2 = new Polyline({
   points: [
-    new Point2D(50, 400),
+    new Point2D(50, 440),
     new Point2D(50, 100),
   ],
   strokeStyle: 'rgba(0,0,0,0.8)',
-  lineWidth: 4
+  lineWidth: 2
 });
 
 
@@ -135,6 +135,7 @@ const source = new ImageShape({
 (window as any).source = source;
 (window as any).ellipse1 = ellipse1;
 (window as any).ellipse2 = ellipse2;
+(window as any).polygon1 = polygon;
 
 (window as any).vinci = vinci;
 
@@ -150,15 +151,15 @@ vinci.add(polygon);
 vinci.add(ellipse1);
 vinci.add(ellipse2);
 
-// vinci.add(polyline1);
-// vinci.add(polyline2);
+vinci.add(polyline1);
+vinci.add(polyline2);
 
-// for(let i = 0; i < 10; i++) {
-//   const height = Math.random() * ( MAX_TOP - MIN_TOP);
+for(let i = 0; i < 10; i++) {
+  const height = Math.random() * ( MAX_TOP - MIN_TOP);
 
-//   const rect = new Rect({width: 30, height, left: 50 + 50 * i, top: 400 - height});
-//   vinci.add(rect);
-// }
+  const rect = new Rect({width: 30, height, left: 60 + 50 * i, top: 400 - height});
+  vinci.add(rect);
+}
 
 
 
