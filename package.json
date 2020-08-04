@@ -1,7 +1,7 @@
 {
   "name": "vinci",
   "version": "0.0.0-rc.3",
-  "description": "a canvas library for interactive and multi shape objects",
+  "description": "vinci.js is an interactive 2D graphic canvas library engine. It can be used to support 2D picture edit, data visualization, video editting, etc. ",
   "main": "lib/index.js",
   "module": "esm/index.js",
   "typings": "esm/index.d.ts",
