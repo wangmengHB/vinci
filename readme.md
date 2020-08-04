@@ -4,7 +4,7 @@ vinci.js is an interactive 2D graphic canvas library engine. It can be used to s
 
 Currently, it already has the basic interactive feature, and it is still in development. 
 
-![demo1](https://github.com/wangmengHB/vinci/blob/master/images/demo1.png?raw=true)
+![demo1](https://github.com/wangmengHB/vinci/blob/master/images/demo1.png?raw=true =250x)
 
 # install
 ```bash
@@ -32,7 +32,7 @@ vinci.getElement();
 ```
 
 
-# roadmap && TODO list
+# TODO list
 
 * Path shape
 * Textbox shape
@@ -41,6 +41,9 @@ vinci.getElement();
 * drawing mode  
 
 After these feature done, it will be published in public. 
+
+
+# roadmap 
 
 
 
