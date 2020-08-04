@@ -85,12 +85,15 @@ export class Source extends Rect{
     if (!ctx.isPointInPath(this.path2D, point.x, point.y)) {
       return false;
     }
-    
+
     const inverseMatrix = invertMatrix2X3(this.getTransformMatrix2X3Array());
     const realPointer = transformPoint2D(
       point,
       inverseMatrix
-    ).addSelf(new Point2D(this.translateX - this.x, this.translateY - this.y));
+    ).addSelf(new Point2D(this.translateX - this.x, this.translateY - this.y))
+    realPointer.setX(realPointer.x * this.originalWidth / this.width);
+    realPointer.setY(realPointer.y * this.originalHeight / this.height);
+
     if(isTransparent(this._cacheCtx, realPointer.x, realPointer.y, 1)) {
       return false
     }

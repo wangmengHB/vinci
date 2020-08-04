@@ -6,7 +6,7 @@ Currently, it already has the basic interactive feature, and it is still in deve
 
 Below is the demo capture from vinci.js.     
 
-<img alt="demo" src="https://github.com/wangmengHB/vinci/blob/master/images/demo1.png" height="300" />
+<img alt="demo" src="https://github.com/wangmengHB/vinci/blob/master/images/demo1.png?raw=true" height="300" />
 
 # install
 ```bash
@@ -38,7 +38,8 @@ vinci.getElement();
 
 * Path shape
 * Textbox shape
-* group function        
+* group function    
+* behavior improvement    
 * fillStyle/strokeStyle/ refactor
 * drawing mode  
 

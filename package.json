@@ -1,6 +1,6 @@
 {
   "name": "vinci",
-  "version": "0.0.0-rc.2",
+  "version": "0.0.0-rc.3",
   "description": "a canvas library for interactive and multi shape objects",
   "main": "lib/index.js",
   "module": "esm/index.js",
