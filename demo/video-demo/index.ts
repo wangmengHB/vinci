@@ -7,6 +7,7 @@ import { Point2D } from 'web-util-kit';
 const {Ellipse, Polyline, ImageShape, Rect, Polygon,} = Shapes;
 
 const vinci = new VinciCanvas();
+vinci.setDimensions(700,750);
 const root = document.getElementById('root') as HTMLDivElement;
 root.appendChild(vinci.getElement());
 

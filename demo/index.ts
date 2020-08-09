@@ -153,14 +153,14 @@ vinci.add(ellipse2);
 
 
 // draw chart
-// vinci.add(polyline1);
-// vinci.add(polyline2);
+vinci.add(polyline1);
+vinci.add(polyline2);
 
-// for(let i = 0; i < 10; i++) {
-//   const height = Math.random() * ( MAX_TOP - MIN_TOP);
-//   const rect = new Rect({width: 30, height, left: 60 + 50 * i, top: 400 - height});
-//   vinci.add(rect);
-// }
+for(let i = 0; i < 10; i++) {
+  const height = Math.random() * ( MAX_TOP - MIN_TOP);
+  const rect = new Rect({width: 30, height, left: 60 + 50 * i, top: 400 - height});
+  vinci.add(rect);
+}
 
 
 
